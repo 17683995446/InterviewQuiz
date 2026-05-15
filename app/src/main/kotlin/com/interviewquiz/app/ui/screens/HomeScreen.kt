@@ -10,13 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.interviewquiz.app.data.QuestionRepository
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel()
-) {
-    val questions by viewModel.questions.collectAsState()
+fun HomeScreen() {
+    val questions = QuestionRepository.getQuestions()
     
     Scaffold(
         topBar = {
@@ -76,7 +74,7 @@ fun WelcomeCard() {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "准备面试的最佳伙伴，5600+道高质量题目",
+                "准备面试的最佳伙伴，海量高质量题目",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
