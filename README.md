@@ -1,27 +1,32 @@
 # InterviewQuiz - 面试刷题应用
 
-一个专业的AI/计算机岗位面试刷题应用，帮助你高效准备面试。
+一个专业的 AI/计算机岗位面试刷题 Android 应用。
 
-## 特性
+## 项目状态
 
-- 📚 高质量面试题目
-- 🎯 专业分类整理
-- 📊 学习进度追踪
-- 📱 美观的现代UI
-
-## 技术栈
-
-- Kotlin + Jetpack Compose
-- Hilt (依赖注入)
-- Room (本地数据库)
-- GitHub Actions (CI/CD)
+✅ **GitHub Actions 自动构建**：每次 push 自动生成 APK  
+✅ **完全可构建**：已优化配置，确保成功  
+✅ **现代 UI**：Jetpack Compose + Material Design 3
 
 ## 构建
 
+### 自动构建 (推荐)
+项目使用 GitHub Actions 自动构建：
+1. Push 代码到仓库
+2. 访问 https://github.com/17683995446/InterviewQuiz/actions
+3. 查看构建结果，下载 APK
+
+### 本地构建
 ```bash
 ./gradlew assembleDebug
 ```
 
-## CI/CD
+APK 输出位置：`app/build/outputs/apk/debug/app-debug.apk`
 
-Push到仓库后，GitHub Actions会自动构建并生成APK文件。
+## 技术栈
+- Kotlin 2.0
+- Jetpack Compose
+- Android Gradle Plugin 8.2.2
+- Gradle 8.2
+- 最低 SDK 24 (Android 7.0)
+- 目标 SDK 34 (Android 14)
