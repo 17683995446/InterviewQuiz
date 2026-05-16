@@ -1,4 +1,3 @@
-
 #!/usr/bin/env sh
 
 ##############################################################################
@@ -13,17 +12,17 @@ PRG="$0"
 # Need this for relative symlinks.
 while [ -h "$PRG" ] ; do
     ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-&gt; \(.*\)$'`
-    if expr "$link" : '/.*' &gt; /dev/null; then
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
         PRG="$link"
     else
         PRG=`dirname "$PRG"`"/$link"
     fi
 done
 SAVED="`pwd`"
-cd "`dirname \"$PRG\"`/" &gt; /dev/null
+cd "`dirname \"$PRG\"`/" > /dev/null
 APP_HOME="`pwd -P`"
-cd "$SAVED" &gt; /dev/null
+cd "$SAVED" > /dev/null
 
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
@@ -70,7 +69,7 @@ CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-        # IBM's JDK on AIX uses strange locations for the executables
+        # IBM's JDK on AIX uses strange locations for the executables.
         JAVACMD="$JAVA_HOME/jre/sh/java"
     else
         JAVACMD="$JAVA_HOME/bin/java"
@@ -83,7 +82,7 @@ location of your Java installation."
     fi
 else
     JAVACMD="java"
-    which java &gt;/dev/null 2&gt;&amp;1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
 
 Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
@@ -117,7 +116,7 @@ if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
     JAVACMD=`cygpath --unix "$JAVACMD"`
 
     # We build the pattern for arguments to be converted via cygpath
-    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2&gt;/dev/null`
+    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
     SEP=""
     for dir in $ROOTDIRSRAW ; do
         ROOTDIRS="$ROOTDIRS$SEP$dir"
@@ -128,13 +127,12 @@ if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
     if [ "$GRADLE_CYGPATTERN" != "" ] ; then
         OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
     fi
-    # Now convert the arguments - kass to kass
+    # Now convert the arguments - kass to grep for check
     i=0
     for arg in "$@" ; do
-        check=`echo -n "$arg"|egrep -c "$OURCYGPATTERN" -`
-        check2=`echo -n "$arg"|egrep -c "^-"`                                 ### Determine if an option
-
-        if [ $check -ne 0 ] &amp;&amp; [ $check2 -eq 0 ]; then                    ### Added option!
+        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
+        CHECK2=`echo "$arg"|egrep -c "^-"`                                 # Annoying limited grep
+        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    # Annoying unshift
             eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
         else
             eval `echo args$i`="\"$arg\""
@@ -166,4 +164,3 @@ APP_ARGS=`save "$@"`
 eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
 
 exec "$JAVACMD" "$@"
-
