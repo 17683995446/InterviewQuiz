@@ -3,27 +3,66 @@ package com.interviewquiz.app.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.interviewquiz.app.data.Question
 import com.interviewquiz.app.data.QuestionRepository
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-    val questions = QuestionRepository.getQuestions()
+    val allQuestions = QuestionRepository.getQuestions()
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var selectedDifficulty by remember { mutableStateOf<String?>(null) }
+    var showFilters by remember { mutableStateOf(false) }
+    
+    val filteredQuestions = remember(selectedCategory, selectedDifficulty) {
+        allQuestions.filter { question ->
+            (selectedCategory == null || question.category == selectedCategory) &&
+            (selectedDifficulty == null || question.difficulty == selectedDifficulty)
+        }
+    }
+    
+    val categories = remember { allQuestions.map { it.category }.distinct() }
+    val difficulties = remember { allQuestions.map { it.difficulty }.distinct() }
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("InterviewQuiz - 面试刷题", fontWeight = FontWeight.Bold) },
+                title = { 
+                    Column {
+                        Text("InterviewQuiz", fontWeight = FontWeight.Bold)
+                        Text(
+                            "${filteredQuestions.size} 道题目", 
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { showFilters = !showFilters }) {
+                        Icon(Icons.Default.FilterList, "筛选")
+                    }
+                    IconButton(onClick = { 
+                        selectedCategory = null
+                        selectedDifficulty = null 
+                    }) {
+                        Icon(Icons.Default.Refresh, "重置")
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -35,8 +74,22 @@ fun HomeScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                WelcomeCard()
+                WelcomeCard(questions = filteredQuestions)
                 Spacer(modifier = Modifier.height(8.dp))
+            }
+            
+            if (showFilters) {
+                item {
+                    FilterSection(
+                        categories = categories,
+                        selectedCategory = selectedCategory,
+                        onCategorySelected = { selectedCategory = it },
+                        difficulties = difficulties,
+                        selectedDifficulty = selectedDifficulty,
+                        onDifficultySelected = { selectedDifficulty = it }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
             
             item {
@@ -48,15 +101,25 @@ fun HomeScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
             }
             
-            items(questions) { question ->
+            items(filteredQuestions) { question ->
                 QuestionCard(question = question)
+            }
+            
+            if (filteredQuestions.isEmpty()) {
+                item {
+                    EmptyState()
+                }
             }
         }
     }
 }
 
 @Composable
-fun WelcomeCard() {
+fun WelcomeCard(questions: List<Question>) {
+    val easyCount = questions.count { it.difficulty == "EASY" }
+    val mediumCount = questions.count { it.difficulty == "MEDIUM" }
+    val hardCount = questions.count { it.difficulty == "HARD" }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -66,54 +129,191 @@ fun WelcomeCard() {
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
-            Text(
-                "欢迎使用 InterviewQuiz！",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "欢迎使用 InterviewQuiz！",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 "准备面试的最佳伙伴，海量高质量题目",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                CategoryChip("算法", "EASY")
-                CategoryChip("Java", "MEDIUM")
-                CategoryChip("Android", "HARD")
+                StatChip("简单", easyCount.toString(), MaterialTheme.colorScheme.primary)
+                StatChip("中等", mediumCount.toString(), MaterialTheme.colorScheme.secondary)
+                StatChip("困难", hardCount.toString(), MaterialTheme.colorScheme.error)
             }
         }
     }
 }
 
 @Composable
-fun CategoryChip(name: String, difficulty: String) {
-    val color = when (difficulty) {
-        "EASY" -> MaterialTheme.colorScheme.primary
-        "MEDIUM" -> MaterialTheme.colorScheme.secondary
-        "HARD" -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.tertiary
-    }
+fun StatChip(label: String, count: String, color: androidx.compose.ui.graphics.Color) {
     Surface(
-        color = color.copy(alpha = 0.2f),
+        color = color.copy(alpha = 0.15f),
         shape = MaterialTheme.shapes.small
     ) {
-        Text(
-            text = name,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Medium,
-            color = color
-        )
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                count,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = color
+            )
+        }
     }
 }
 
 @Composable
-fun QuestionCard(question: com.interviewquiz.app.data.Question) {
+fun FilterSection(
+    categories: List<String>,
+    selectedCategory: String?,
+    onCategorySelected: (String?) -> Unit,
+    difficulties: List<String>,
+    selectedDifficulty: String?,
+    onDifficultySelected: (String?) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                "筛选条件",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Text(
+                "分类",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = selectedCategory == null,
+                    onClick = { onCategorySelected(null) },
+                    label = { Text("全部") }
+                )
+                categories.forEach { category ->
+                    FilterChip(
+                        selected = selectedCategory == category,
+                        onClick = { onCategorySelected(category) },
+                        label = { Text(category) }
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Text(
+                "难度",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = selectedDifficulty == null,
+                    onClick = { onDifficultySelected(null) },
+                    label = { Text("全部") }
+                )
+                difficulties.forEach { difficulty ->
+                    val color = when (difficulty) {
+                        "EASY" -> MaterialTheme.colorScheme.primary
+                        "MEDIUM" -> MaterialTheme.colorScheme.secondary
+                        "HARD" -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.tertiary
+                    }
+                    FilterChip(
+                        selected = selectedDifficulty == difficulty,
+                        onClick = { onDifficultySelected(difficulty) },
+                        label = { Text(difficulty) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = color.copy(alpha = 0.2f)
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptyState() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("🔍", style = MaterialTheme.typography.displayLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "没有找到符合条件的题目",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "请尝试调整筛选条件",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+fun QuestionCard(question: Question) {
     var expanded by remember { mutableStateOf(false) }
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
     
@@ -148,6 +348,7 @@ fun QuestionCard(question: com.interviewquiz.app.data.Question) {
                     question.options.forEachIndexed { index, option ->
                         AnswerOption(
                             text = option,
+                            index = index,
                             isSelected = selectedAnswer == index,
                             isCorrect = index == question.correctAnswer,
                             showCorrectness = selectedAnswer != null,
@@ -157,7 +358,7 @@ fun QuestionCard(question: com.interviewquiz.app.data.Question) {
                 }
                 if (selectedAnswer != null) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    ExplanationCard(explanation = question.explanation)
+                    ExplanationCard(explanation = question.explanation, isCorrect = selectedAnswer == question.correctAnswer)
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -195,22 +396,23 @@ fun DifficultyChip(difficulty: String) {
 @Composable
 fun AnswerOption(
     text: String,
+    index: Int,
     isSelected: Boolean,
     isCorrect: Boolean,
     showCorrectness: Boolean,
     onClick: () -> Unit
 ) {
-    val color = when {
-        !showCorrectness && isSelected -> MaterialTheme.colorScheme.primary
-        showCorrectness && isCorrect -> MaterialTheme.colorScheme.primary
-        showCorrectness && isSelected && !isCorrect -> MaterialTheme.colorScheme.error
-        else -> MaterialTheme.colorScheme.onSurface
-    }
     val backgroundColor = when {
         !showCorrectness && isSelected -> MaterialTheme.colorScheme.primaryContainer
         showCorrectness && isCorrect -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
         showCorrectness && isSelected && !isCorrect -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
         else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    
+    val textColor = when {
+        showCorrectness && isCorrect -> MaterialTheme.colorScheme.primary
+        showCorrectness && isSelected && !isCorrect -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurface
     }
     
     Surface(
@@ -223,33 +425,59 @@ fun AnswerOption(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "ABCDE"[text.length % 4], style = MaterialTheme.typography.labelMedium)
+            Text(
+                "${('A'.code + index).toChar()}.",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = textColor
+            )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = text, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor
+            )
+            if (showCorrectness && isCorrect) {
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = "正确答案",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ExplanationCard(explanation: String) {
+fun ExplanationCard(explanation: String, isCorrect: Boolean) {
+    val containerColor = if (isCorrect) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.errorContainer
+    }
+    val icon = if (isCorrect) "✅" else "❌"
+    val title = if (isCorrect) "回答正确" else "回答错误"
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        )
+        colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(icon, style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "💡 解析",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                explanation,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                "💡 解析：$explanation",
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
