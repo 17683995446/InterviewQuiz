@@ -1,23 +1,48 @@
 package com.interviewquiz.app.data
 
-data class Question(
-    val id: Int,
-    val title: String,
-    val options: List<String>,
-    val correctAnswer: Int,
-    val explanation: String,
-    val category: String,
-    val difficulty: String
-)
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object QuestionRepository {
-    fun getQuestions(): List<Question> = generateAlgorithmQuestions() + 
-                                       generateJavaQuestions() + 
-                                       generateDatabaseQuestions() + 
-                                       generateNetworkQuestions() + 
-                                       generateOSQuestions() + 
-                                       generateAndroidQuestions()
+interface QuestionRepository {
+    fun getQuestions(): List<Question>
+    fun getQuestionsByCategory(category: String): List<Question>
+    fun getQuestionsByDifficulty(difficulty: String): List<Question>
+    fun getCategories(): List<String>
+    fun getDifficulties(): List<String>
+}
 
+@Singleton
+class QuestionRepositoryImpl @Inject constructor() : QuestionRepository {
+    
+    private val allQuestions: List<Question> by lazy { generateAllQuestions() }
+    
+    override fun getQuestions(): List<Question> = allQuestions
+    
+    override fun getQuestionsByCategory(category: String): List<Question> {
+        return allQuestions.filter { it.category == category }
+    }
+    
+    override fun getQuestionsByDifficulty(difficulty: String): List<Question> {
+        return allQuestions.filter { it.difficulty == difficulty }
+    }
+    
+    override fun getCategories(): List<String> {
+        return allQuestions.map { it.category }.distinct().sorted()
+    }
+    
+    override fun getDifficulties(): List<String> {
+        return listOf("EASY", "MEDIUM", "HARD")
+    }
+    
+    private fun generateAllQuestions(): List<Question> {
+        return generateAlgorithmQuestions() + 
+               generateJavaQuestions() + 
+               generateDatabaseQuestions() + 
+               generateNetworkQuestions() + 
+               generateOSQuestions() + 
+               generateAndroidQuestions()
+    }
+    
     private fun generateAlgorithmQuestions(): List<Question> = listOf(
         Question(1, "什么是时间复杂度？", listOf("衡量算法执行时间与输入规模关系的指标", "算法代码的长度", "算法消耗的内存大小", "算法执行的实际时间"), 0, "时间复杂度用大O表示法描述算法效率，衡量执行时间与输入规模的关系。", "算法与数据结构", "EASY"),
         Question(2, "大O表示法O(n)表示什么？", listOf("算法执行时间随输入规模线性增长", "算法执行时间为常数", "算法执行时间指数增长", "算法执行时间对数增长"), 0, "O(n)表示线性时间复杂度，执行时间与输入规模成正比。", "算法与数据结构", "EASY"),
@@ -40,7 +65,7 @@ object QuestionRepository {
         Question(19, "AVL树和普通二叉搜索树的主要区别是？", listOf("AVL树是自平衡的", "AVL树查找更快", "AVL树插入更快", "没有区别"), 0, "AVL树通过旋转保持平衡，保证O(log n)查找。", "算法与数据结构", "HARD"),
         Question(20, "布隆过滤器的主要用途是？", listOf("快速判断元素是否可能存在", "精确查找元素", "排序", "压缩数据"), 0, "布隆过滤器可以快速判断元素一定不存在或可能存在。", "算法与数据结构", "HARD")
     )
-
+    
     private fun generateJavaQuestions(): List<Question> = listOf(
         Question(21, "Java中int和Integer的区别是什么？", listOf("int是基本类型，Integer是包装类", "int是包装类，Integer是基本类型", "没有区别", "int不可以为null"), 0, "int是原始类型，直接存储数值；Integer是包装类，提供对象操作和null支持。", "Java与Kotlin", "EASY"),
         Question(22, "ArrayList和LinkedList的主要区别是什么？", listOf("ArrayList基于动态数组，LinkedList基于双向链表", "LinkedList访问更快", "ArrayList插入删除更快", "没有区别"), 0, "ArrayList支持O(1)随机访问，LinkedList支持O(1)插入删除。", "Java与Kotlin", "EASY"),
@@ -63,7 +88,7 @@ object QuestionRepository {
         Question(39, "HashSet底层实现基于什么？", listOf("HashMap", "ArrayList", "LinkedList", "TreeMap"), 0, "HashSet底层使用HashMap存储元素，value使用固定对象。", "Java与Kotlin", "MEDIUM"),
         Question(40, "Kotlin中的when表达式替代了Java的什么？", listOf("switch语句", "if-else", "循环", "异常处理"), 0, "when比switch更强大，支持任意类型和条件。", "Java与Kotlin", "EASY")
     )
-
+    
     private fun generateDatabaseQuestions(): List<Question> = listOf(
         Question(41, "SQL中用于从表中查询数据的语句是？", listOf("SELECT", "INSERT", "UPDATE", "DELETE"), 0, "SELECT用于从数据库查询数据。", "数据库", "EASY"),
         Question(42, "WHERE子句的作用是？", listOf("过滤查询条件", "指定查询的表", "排序结果", "分组结果"), 0, "WHERE用于设置查询条件，过滤结果。", "数据库", "EASY"),
@@ -86,7 +111,7 @@ object QuestionRepository {
         Question(59, "COUNT(*)和COUNT(1)的区别是？", listOf("性能几乎相同", "COUNT(*)更快", "COUNT(1)更快", "COUNT(*)会忽略NULL"), 0, "在InnoDB中，两者性能几乎相同。", "数据库", "MEDIUM"),
         Question(60, "什么是存储过程？", listOf("预编译的SQL代码块，可重复调用", "临时表", "索引", "触发器"), 0, "存储过程是预编译的SQL代码块，减少网络传输。", "数据库", "MEDIUM")
     )
-
+    
     private fun generateNetworkQuestions(): List<Question> = listOf(
         Question(61, "OSI七层模型中网络层的主要功能是？", listOf("寻址和路由选择", "建立可靠连接", "数据表示", "用户界面"), 0, "网络层负责IP寻址和路由选择。", "网络基础", "MEDIUM"),
         Question(62, "TCP/IP四层模型不包括？", listOf("会话层", "网络接口层", "网际层", "传输层"), 0, "TCP/IP四层包括：网络接口层、网际层、传输层、应用层。", "网络基础", "MEDIUM"),
@@ -109,7 +134,7 @@ object QuestionRepository {
         Question(79, "ARP协议的作用是？", listOf("将IP地址解析为MAC地址", "将域名解析为IP", "加密数据", "路由选择"), 0, "ARP将IP地址解析为局域网中的MAC地址。", "网络基础", "HARD"),
         Question(80, "负载均衡的目的是？", listOf("分发请求到多台服务器，提高性能和可用性", "加快单台服务器速度", "减少数据存储", "提高安全性"), 0, "负载均衡将请求分发到多台服务器，提高性能和可用性。", "网络基础", "MEDIUM")
     )
-
+    
     private fun generateOSQuestions(): List<Question> = listOf(
         Question(81, "操作系统的主要功能不包括？", listOf("编译源代码", "进程管理", "内存管理", "文件管理"), 0, "操作系统不负责编译源代码，那是编译器的工作。", "操作系统", "EASY"),
         Question(82, "什么是系统调用？", listOf("用户程序请求操作系统服务的接口", "函数调用", "系统崩溃", "数据库查询"), 0, "系统调用是用户态与内核态的桥梁。", "操作系统", "MEDIUM"),
@@ -132,7 +157,7 @@ object QuestionRepository {
         Question(99, "什么是抢先式多任务？", listOf("操作系统强制暂停进程分配CPU", "进程主动放弃CPU", "只有一个进程运行", "禁止多任务"), 0, "抢先式多任务通过时间片轮转强制分配CPU。", "操作系统", "MEDIUM"),
         Question(100, "文件系统挂载的含义是？", listOf("将文件系统连接到目录树", "删除文件系统", "格式化", "备份"), 0, "挂载将文件系统连接到根文件系统指定目录。", "操作系统", "MEDIUM")
     )
-
+    
     private fun generateAndroidQuestions(): List<Question> = listOf(
         Question(101, "Activity的启动方法是什么？", listOf("startActivity()", "launchActivity()", "openActivity()", "start()"), 0, "startActivity()用于启动Activity。", "Android开发", "EASY"),
         Question(102, "Activity生命周期的第一个回调是？", listOf("onCreate()", "onStart()", "onResume()", "onInit()"), 0, "onCreate是Activity生命周期第一个回调。", "Android开发", "EASY"),

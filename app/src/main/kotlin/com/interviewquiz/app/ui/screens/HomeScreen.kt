@@ -14,26 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.interviewquiz.app.data.Question
-import com.interviewquiz.app.data.QuestionRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
-    val allQuestions = QuestionRepository.getQuestions()
-    var selectedCategory by remember { mutableStateOf<String?>(null) }
-    var selectedDifficulty by remember { mutableStateOf<String?>(null) }
-    var showFilters by remember { mutableStateOf(false) }
-    
-    val filteredQuestions = remember(selectedCategory, selectedDifficulty) {
-        allQuestions.filter { question ->
-            (selectedCategory == null || question.category == selectedCategory) &&
-            (selectedDifficulty == null || question.difficulty == selectedDifficulty)
-        }
-    }
-    
-    val categories = remember { allQuestions.map { it.category }.distinct() }
-    val difficulties = remember { allQuestions.map { it.difficulty }.distinct() }
+fun HomeScreen(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
     
     Scaffold(
         topBar = {
@@ -42,7 +31,7 @@ fun HomeScreen() {
                     Column {
                         Text("InterviewQuiz", fontWeight = FontWeight.Bold)
                         Text(
-                            "${filteredQuestions.size} 道题目", 
+                            "${uiState.filteredQuestions.size} 道题目", 
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
@@ -53,61 +42,67 @@ fun HomeScreen() {
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
-                    IconButton(onClick = { showFilters = !showFilters }) {
+                    IconButton(onClick = { viewModel.toggleFilters() }) {
                         Icon(Icons.Default.FilterList, "筛选")
                     }
-                    IconButton(onClick = { 
-                        selectedCategory = null
-                        selectedDifficulty = null 
-                    }) {
+                    IconButton(onClick = { viewModel.resetFilters() }) {
                         Icon(Icons.Default.Refresh, "重置")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                WelcomeCard(questions = filteredQuestions)
-                Spacer(modifier = Modifier.height(8.dp))
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-            
-            if (showFilters) {
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 item {
-                    FilterSection(
-                        categories = categories,
-                        selectedCategory = selectedCategory,
-                        onCategorySelected = { selectedCategory = it },
-                        difficulties = difficulties,
-                        selectedDifficulty = selectedDifficulty,
-                        onDifficultySelected = { selectedDifficulty = it }
+                    WelcomeCard(questions = uiState.filteredQuestions)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                
+                if (uiState.showFilters) {
+                    item {
+                        FilterSection(
+                            categories = viewModel.getCategories(),
+                            selectedCategory = uiState.selectedCategory,
+                            onCategorySelected = { viewModel.selectCategory(it) },
+                            difficulties = viewModel.getDifficulties(),
+                            selectedDifficulty = uiState.selectedDifficulty,
+                            onDifficultySelected = { viewModel.selectDifficulty(it) }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                
+                item {
+                    Text(
+                        "题目列表",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-            }
-            
-            item {
-                Text(
-                    "题目列表",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            
-            items(filteredQuestions) { question ->
-                QuestionCard(question = question)
-            }
-            
-            if (filteredQuestions.isEmpty()) {
-                item {
-                    EmptyState()
+                
+                items(uiState.filteredQuestions) { question ->
+                    QuestionCard(question = question)
+                }
+                
+                if (uiState.filteredQuestions.isEmpty()) {
+                    item {
+                        EmptyState()
+                    }
                 }
             }
         }
