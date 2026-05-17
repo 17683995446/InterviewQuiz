@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterviewQuiz 技术架构可视化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1E3A5F;
+            --secondary: #00D4FF;
+            --accent: #FF6B35;
+            --bg-dark: #0A0F1C;
+            --bg-card: #111827;
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --gradient-start: #1E3A5F;
+            --gradient-end: #0D1B2A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .animate-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        /* Glass morphism */
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Navigation */
+        .nav-item {
+            position: relative;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            color: var(--secondary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .nav-item.active {
+            color: var(--secondary);
+            background: rgba(0, 212, 255, 0.15);
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-item:hover::after,
+        .nav-item.active::after {
+            width: 60%;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Diagram container */
+        .diagram-container {
+            background: rgba(10, 15, 28, 0.8);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+
+        .diagram-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Mermaid theme overrides */
+        .mermaid {
+            color: var(--text-primary);
+        }
+
+        .mermaid .node {
+            fill: var(--bg-card);
+            stroke: var(--secondary);
+            stroke-width: 2px;
+        }
+
+        .mermaid .edgePath {
+            stroke: var(--secondary);
+            stroke-width: 2px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #0099CC);
+            color: var(--bg-dark);
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--secondary);
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--secondary);
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tag-primary {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--secondary);
+        }
+
+        .tag-accent {
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--accent);
+        }
+
+        .tag-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-4px);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--secondary), var(--accent));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--secondary);
+            transform: translateX(-5px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0D1117;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Table styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .data-table th {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .data-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table tr:hover td {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Floating particles background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        /* Hero section */
+        .hero-gradient {
+            background: radial-gradient(ellipse at center top, rgba(0, 212, 255, 0.15) 0%, transparent 60%);
+        }
+
+        /* Architecture layers */
+        .layer {
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .layer-1 {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .layer-2 {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .layer-3 {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .layer-4 {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* Icon containers */
+        .icon-container {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--secondary), #0099CC);
+            color: var(--bg-dark);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .nav-desktop {
+                display: none;
+            }
+
+            .nav-mobile {
+                display: block;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .nav-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">IQ</span>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white">InterviewQuiz</h1>
+                        <p class="text-xs text-gray-400">技术架构可视化</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="nav-desktop hidden md:flex items-center space-x-1">
+                    <a href="#overview" class="nav-item active">概览</a>
+                    <a href="#architecture" class="nav-item">架构</a>
+                    <a href="#flow" class="nav-item">流程</a>
+                    <a href="#sequence" class="nav-item">时序</a>
+                    <a href="#modules" class="nav-item">模块</a>
+                    <a href="#tech" class="nav-item">技术栈</a>
+                </div>
+
+                <!-- GitHub Link -->
+                <a href="https://github.com/17683995446/InterviewQuiz" target="_blank" class="btn-secondary text-sm py-2 px-4">
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-32 pb-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center">
+                <div class="animate-fade-in-up">
+                    <span class="tag tag-primary mb-4 inline-block">🎯 v1.1.0 深度优化版本</span>
+                    <h1 class="section-title text-5xl md:text-7xl mb-6">
+                        InterviewQuiz
+                    </h1>
+                    <p class="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+                        面向计算机/AI岗位面试刷题应用<br>
+                        采用 Kotlin 2.0 + Jetpack Compose 构建，遵循 Clean Architecture 架构模式
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4 mb-12">
+                        <a href="#architecture" class="btn-primary">探索架构</a>
+                        <a href="#flow" class="btn-secondary">查看流程</a>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid animate-fade-in-up" style="animation-delay: 0.2s">
+                    <div class="stat-card">
+                        <div class="stat-number">11</div>
+                        <div class="stat-label">优化维度</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">修复问题</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">41</div>
+                        <div class="stat-label">测试用例</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">120</div>
+                        <div class="stat-label">面试题目</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full filter blur-[128px] opacity-20 animate-float"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-orange-500 rounded-full filter blur-[128px] opacity-10 animate-float" style="animation-delay: 3s"></div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-accent mb-4 inline-block">📊 项目概览</span>
+                <h2 class="section-title">系统整体架构</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    InterviewQuiz 采用分层架构设计，从上到下依次为表现层、视图模型层、领域层和数据层
+                </p>
+            </div>
+
+            <!-- Architecture Layers -->
+            <div class="max-w-4xl mx-auto space-y-4">
+                <div class="layer layer-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="icon-container">🎨</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-cyan-400">表现层 (UI Layer)</h3>
+                                <p class="text-sm text-gray-400">Jetpack Compose 声明式 UI</p>
+                            </div>
+                        </div>
+                        <span class="tag tag-primary">用户界面</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📱</div>
+                            <div class="text-sm">HomeScreen</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📋</div>
+                            <div class="text-sm">QuestionCard</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">🔍</div>
+                            <div class="text-sm">FilterSection</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">🔎</div>
+                            <div class="text-sm">SearchBar</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer layer-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="icon-container">⚙️</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-orange-400">视图模型层 (ViewModel Layer)</h3>
+                                <p class="text-sm text-gray-400">状态管理与业务逻辑协调</p>
+                            </div>
+                        </div>
+                        <span class="tag tag-accent">状态管理</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📊</div>
+                            <div class="text-sm">HomeViewModel</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">🔄</div>
+                            <div class="text-sm">BaseViewModel</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer layer-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="icon-container">💼</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-green-400">领域层 (Domain Layer)</h3>
+                                <p class="text-sm text-gray-400">核心业务逻辑与用例</p>
+                            </div>
+                        </div>
+                        <span class="tag tag-success">业务逻辑</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📝</div>
+                            <div class="text-sm">UseCases</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">🏷️</div>
+                            <div class="text-sm">Result</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📊</div>
+                            <div class="text-sm">Difficulty</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">❓</div>
+                            <div class="text-sm">Question</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer layer-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="icon-container">🗄️</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-purple-400">数据层 (Data Layer)</h3>
+                                <p class="text-sm text-gray-400">数据存储与获取</p>
+                            </div>
+                        </div>
+                        <span class="tag" style="background: rgba(168, 85, 247, 0.2); color: #A855F7;">数据访问</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">📚</div>
+                            <div class="text-sm">QuestionRepository</div>
+                        </div>
+                        <div class="glass-light rounded-lg p-3 text-center">
+                            <div class="text-2xl mb-1">🛡️</div>
+                            <div class="text-sm">SecurityManager</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-primary mb-4 inline-block">🏗️ 架构设计</span>
+                <h2 class="section-title">整体架构图</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    采用 MVVM + Clean Architecture 架构模式，实现UI与业务逻辑的完全解耦
+                </p>
+            </div>
+
+            <div class="diagram-container">
+                <pre class="mermaid">
+graph TB
+    subgraph "🎨 表现层 (UI Layer)"
+        A[📱 HomeScreen]
+        B[📋 QuestionCard]
+        C[🔍 FilterSection]
+        D[🔎 SearchBar]
+    end
+    
+    subgraph "⚙️ 视图模型层 (ViewModel Layer)"
+        E[📊 HomeViewModel]
+        F[🔄 BaseViewModel]
+    end
+    
+    subgraph "💼 领域层 (Domain Layer)"
+        G[📝 GetQuestionsUseCase]
+        H[🎯 FilterQuestionsUseCase]
+        I[🔎 SearchQuestionsUseCase]
+        J[✅ Result]
+    end
+    
+    subgraph "🗄️ 数据层 (Data Layer)"
+        K[📚 QuestionRepository]
+        L[💾 QuestionRepositoryImpl]
+        M[❓ Question]
+    end
+    
+    subgraph "🔧 基础设施层"
+        N[💉 Hilt DI]
+        O[🛡️ SecurityManager]
+        P[📝 AppLogger]
+    end
+    
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    E --> G
+    E --> H
+    E --> I
+    G --> K
+    H --> K
+    I --> K
+    K --> L
+    L --> M
+    N --> G
+    N --> H
+    N --> I
+    N --> K
+    N --> E
+    O --> N
+    P --> N
+                </pre>
+            </div>
+
+            <!-- Architecture Features -->
+            <div class="grid md:grid-cols-3 gap-6 mt-12">
+                <div class="card p-6">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-xl font-bold mb-2">职责分离</h3>
+                    <p class="text-gray-400 text-sm">
+                        每层只关注自己的职责，UI层负责展示，ViewModel层负责状态管理，Domain层处理业务逻辑
+                    </p>
+                </div>
+                <div class="card p-6">
+                    <div class="text-4xl mb-4">🔄</div>
+                    <h3 class="text-xl font-bold mb-2">依赖倒置</h3>
+                    <p class="text-gray-400 text-sm">
+                        通过接口抽象，Domain层不依赖具体实现，便于单元测试和模块替换
+                    </p>
+                </div>
+                <div class="card p-6">
+                    <div class="text-4xl mb-4">🧪</div>
+                    <h3 class="text-xl font-bold mb-2">易于测试</h3>
+                    <p class="text-gray-400 text-sm">
+                        各层可独立测试，通过Mock对象可以轻松验证业务逻辑的正确性
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flow Section -->
+    <section id="flow" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-accent mb-4 inline-block">🔀 流程设计</span>
+                <h2 class="section-title">核心流程图</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    展示应用启动、题目筛选、作答等核心业务流程
+                </p>
+            </div>
+
+            <!-- Application Start Flow -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-sm mr-3">1</span>
+                    应用启动流程
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+flowchart TD
+    A([🚀 启动应用]) --> B[创建 Application]
+    B --> C[初始化 Hilt DI]
+    C --> D[注入 SecurityManager]
+    D --> E[执行安全检测]
+    E --> F{Root/模拟器?}
+    F -->|是| G[⚠️ 记录警告日志]
+    F -->|否| H[✅ 继续启动]
+    G --> H
+    H --> I[创建 MainActivity]
+    I --> J[设置 FLAG_SECURE]
+    J --> K[创建 Compose UI]
+    K --> L[注入 HomeViewModel]
+    L --> M[调用 loadQuestions]
+    M --> N[初始化 UseCases]
+    N --> O[从 Repository 获取数据]
+    O --> P[更新 UI State]
+    P --> Q([✅ 显示主界面])
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Question Filtering Flow -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-sm mr-3">2</span>
+                    题目筛选流程
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+flowchart TD
+    A([👤 用户选择筛选条件]) --> B[selectCategory / selectDifficulty]
+    B --> C[更新 HomeUiState]
+    C --> D[触发 applyFilters]
+    D --> E[获取过滤条件]
+    E --> F{分类筛选?}
+    F -->|是| G[🔍 过滤指定分类]
+    F -->|否| I{难度筛选?}
+    G --> H
+    I -->|是| J[🎯 过滤指定难度]
+    J --> H
+    I -->|否| H{搜索查询?}
+    H -->|是| K[📝 模糊匹配]
+    H -->|否| L[📋 返回全部]
+    K --> L
+    L --> M[更新 filteredQuestions]
+    M --> N[🔄 UI 重组]
+    N --> O([✅ 显示结果])
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Question Answering Flow -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-sm mr-3">3</span>
+                    题目作答流程
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+flowchart TD
+    A([👤 点击题目卡片]) --> B{卡片状态?}
+    B -->|收起| C[📖 展开卡片]
+    B -->|展开| D[📕 收起卡片]
+    C --> E[🔄 显示选项区域]
+    D --> Z([✅ 结束])
+    E --> F([👤 选择答案])
+    F --> G[✨ 高亮选中选项]
+    G --> H[💡 显示解析]
+    H --> I{答案正确?}
+    I -->|✅| J[🟢 显示正确提示]
+    I -->|❌| K[🔴 显示错误+正确答案]
+    J --> L([📝 可继续选择])
+    K --> L
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sequence Section -->
+    <section id="sequence" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-success mb-4 inline-block">📅 时序设计</span>
+                <h2 class="section-title">核心时序图</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    展示各组件之间的交互顺序和时间关系
+                </p>
+            </div>
+
+            <!-- App Start Sequence -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-purple-500 flex items-center justify-center text-sm mr-3">1</span>
+                    应用启动时序
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+sequenceDiagram
+    participant App as Application
+    participant Main as MainActivity
+    participant VM as HomeViewModel
+    participant UC as UseCases
+    participant Repo as QuestionRepository
+    participant Sec as SecurityManager
+    
+    App->>Sec: 执行安全检测
+    Sec-->>App: 返回安全状态
+    
+    App->>Main: onCreate()
+    Main->>Main: secureWindow()
+    Main->>Main: setContent()
+    
+    Main->>VM: 注入 HomeViewModel
+    VM->>VM: init { loadQuestions() }
+    
+    VM->>UC: getQuestionsUseCase()
+    UC->>Repo: getQuestions()
+    Repo-->>UC: List&lt;Question&gt;
+    
+    VM->>UC: getCategoriesUseCase()
+    UC->>Repo: getCategories()
+    Repo-->>UC: List&lt;String&gt;
+    
+    VM->>UC: getDifficultiesUseCase()
+    UC->>Repo: getDifficulties()
+    Repo-->>UC: List&lt;String&gt;
+    
+    VM->>UC: getQuestionCountUseCase()
+    UC->>Repo: getQuestionCount()
+    Repo-->>UC: Int
+    
+    VM-->>Main: 更新 uiState
+    Main-->>App: 重组 UI
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Filtering Sequence -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-sm mr-3">2</span>
+                    题目筛选时序
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+sequenceDiagram
+    participant User as 👤 用户
+    participant UI as HomeScreen
+    participant VM as HomeViewModel
+    participant UC as FilterQuestionsUseCase
+    participant Repo as QuestionRepository
+    
+    User->>UI: 选择分类/难度
+    UI->>VM: selectCategory(category)
+    
+    VM->>VM: 更新 selectedCategory
+    VM->>VM: applyFilters()
+    
+    VM->>UC: invoke(category, difficulty, query)
+    
+    UC->>Repo: getQuestions()
+    Repo-->>UC: List&lt;Question&gt;
+    
+    alt 分类过滤
+        UC->>UC: filter by category
+    end
+    
+    alt 难度过滤
+        UC->>UC: filter by difficulty
+    end
+    
+    alt 搜索过滤
+        UC->>UC: filter by search query
+    end
+    
+    UC-->>VM: List&lt;Question&gt;
+    VM-->>VM: 更新 filteredQuestions
+    VM-->>UI: StateFlow 更新
+    UI-->>User: 重组 LazyColumn
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Data Caching Sequence -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-sm mr-3">3</span>
+                    数据缓存时序
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+sequenceDiagram
+    participant VM as HomeViewModel
+    participant Repo as QuestionRepositoryImpl
+    participant Cache as Memory Cache
+    
+    Note over Repo: 首次调用 getQuestions()
+    VM->>Repo: getQuestions()
+    Repo->>Repo: generateAllQuestions()
+    Repo->>Cache: 缓存到 categoryCache
+    Repo->>Cache: 缓存到 difficultyCache
+    Repo-->>VM: List&lt;Question&gt;
+    
+    Note over Repo: 后续调用 getQuestionsByCategory()
+    VM->>Repo: getQuestionsByCategory("算法")
+    Repo->>Cache: 读取 categoryCache
+    Cache-->>Repo: List&lt;Question&gt;
+    Repo-->>VM: List&lt;Question&gt;
+    
+    Note over Repo: 无缓存穿透
+    VM->>Repo: getQuestionsByDifficulty("HARD")
+    Repo->>Cache: 读取 difficultyCache
+    Cache-->>Repo: List&lt;Question&gt;
+    Repo-->>VM: List&lt;Question&gt;
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modules Section -->
+    <section id="modules" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-primary mb-4 inline-block">📦 模块设计</span>
+                <h2 class="section-title">包结构与依赖</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    展示代码组织结构和模块依赖关系
+                </p>
+            </div>
+
+            <!-- Package Structure -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6">包结构图</h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+graph TD
+    subgraph "com.interviewquiz.app"
+        A[Root]
+        B[ui/]
+        C[data/]
+        D[domain/]
+        E[di/]
+        F[security/]
+        G[util/]
+        
+        B --> B1[screens/]
+        B --> B2[theme/]
+        B --> B3[base/]
+        
+        B1 --> B11[HomeScreen.kt]
+        B1 --> B12[HomeViewModel.kt]
+        
+        B2 --> B21[Color.kt]
+        B2 --> B22[Theme.kt]
+        B2 --> B23[Type.kt]
+        
+        B3 --> B31[BaseViewModel.kt]
+        
+        C --> C1[Question.kt]
+        C --> C2[QuestionRepository.kt]
+        C --> C3[QuestionRepositoryImpl.kt]
+        
+        D --> D1[model/]
+        D --> D2[usecase/]
+        
+        D1 --> D11[Result.kt]
+        D1 --> D12[Difficulty.kt]
+        
+        D2 --> D21[GetQuestionsUseCase.kt]
+        D2 --> D22[FilterQuestionsUseCase.kt]
+        D2 --> D23[SearchQuestionsUseCase.kt]
+        
+        E --> E1[AppModule.kt]
+        E --> E2[SecurityModule.kt]
+        
+        F --> F1[SecurityManager.kt]
+        
+        G --> G1[AppLogger.kt]
+        G --> G2[AppException.kt]
+    end
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Class Relationships -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6">类关系图</h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+classDiagram
+    class HomeScreen {
+        +uiState: HomeUiState
+        +onSearch(query: String)
+        +onFilter(category: String?, difficulty: String?)
+    }
+    
+    class HomeViewModel {
+        +uiState: StateFlow~HomeUiState~
+        +loadQuestions()
+        +selectCategory(category: String?)
+        +selectDifficulty(difficulty: String?)
+    }
+    
+    class BaseViewModel {
+        <<abstract>>
+        +exceptionHandler: CoroutineExceptionHandler
+        +launchSafe(block: suspend () -> Unit)
+        +handleException(exception: Throwable)
+    }
+    
+    class QuestionRepository {
+        <<interface>>
+        +getQuestions(): List~Question~
+        +getQuestionsByCategory(category: String): List~Question~
+        +getCategories(): List~String~
+        +searchQuestions(query: String): List~Question~
+    }
+    
+    class QuestionRepositoryImpl {
+        -allQuestions: List~Question~
+        -categoryCache: Map~String, List~Question~~
+        +getQuestions(): List~Question~
+    }
+    
+    class Question {
+        +id: Int
+        +title: String
+        +options: List~String~
+        +correctAnswer: Int
+        +getDifficultyLevel(): Difficulty
+    }
+    
+    class Difficulty {
+        <<enumeration>>
+        EASY
+        MEDIUM
+        HARD
+    }
+    
+    class Result~T~ {
+        <<sealed>>
+        Success~data: T~
+        Error~exception: Throwable~
+        Loading
+    }
+    
+    HomeScreen --> HomeViewModel
+    HomeViewModel --|> BaseViewModel
+    HomeViewModel --> QuestionRepository
+    QuestionRepository <|.. QuestionRepositoryImpl
+    QuestionRepositoryImpl --> Question
+    Question --> Difficulty
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Dependency Graph -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-bold mb-6">模块依赖图</h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+graph LR
+    subgraph "表现层"
+        A[HomeScreen] --> B[HomeViewModel]
+    end
+    
+    subgraph "领域层"
+        B --> C[GetQuestionsUseCase]
+        B --> D[FilterQuestionsUseCase]
+        B --> E[SearchQuestionsUseCase]
+    end
+    
+    subgraph "数据层"
+        C --> F[QuestionRepository]
+        D --> F
+        E --> F
+        F --> G[QuestionRepositoryImpl]
+        G --> H[Question]
+    end
+    
+    subgraph "基础设施"
+        I[Hilt DI] --> C
+        I --> D
+        I --> E
+        I --> F
+        I --> B
+        J[SecurityManager] --> I
+    end
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-accent mb-4 inline-block">🛠️ 技术栈</span>
+                <h2 class="section-title">技术选型</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    使用业界主流技术栈，确保代码质量和可维护性
+                </p>
+            </div>
+
+            <!-- Tech Stack Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+                <div class="card p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mr-4">
+                            <span class="text-2xl">🤖</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Android SDK</h3>
+                            <p class="text-sm text-gray-400">API 34</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tag tag-primary">Kotlin 2.0</span>
+                        <span class="tag tag-accent">Java 17</span>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mr-4">
+                            <span class="text-2xl">🎨</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">UI Framework</h3>
+                            <p class="text-sm text-gray-400">Jetpack Compose</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tag tag-primary">Material 3</span>
+                        <span class="tag tag-success">声明式 UI</span>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mr-4">
+                            <span class="text-2xl">💉</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Dependency Injection</h3>
+                            <p class="text-sm text-gray-400">Hilt 2.50</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tag tag-primary">KSP</span>
+                        <span class="tag tag-accent">Singleton</span>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mr-4">
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Async Operations</h3>
+                            <p class="text-sm text-gray-400">Kotlin Coroutines</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tag tag-primary">StateFlow</span>
+                        <span class="tag tag-success">Flow</span>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mr-4">
+                            <span class="text-2xl">🔄</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Build System</h3>
+                            <p class="text-sm text-gray-400">Gradle 8.2</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tag tag-primary">Kotlin DSL</span>
+                        <span class="tag tag-accent">KTS</span>
+                    </div>
+                </div>
+
+                <div class="card p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center mr-4">
+                            <span class="text-2xl">🧪</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Testing</h3>
+                            <p class="text-sm text-gray-400">JUnit + MockK</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="tag tag-primary">Unit Test</span>
+                        <span class="tag tag-success">41 Cases</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dependency Table -->
+            <div class="card p-8">
+                <h3 class="text-2xl font-bold mb-6">核心依赖版本</h3>
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>依赖库</th>
+                                <th>版本</th>
+                                <th>用途</th>
+                                <th>优先级</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>androidx.core</td>
+                                <td><code class="text-cyan-400">1.12.0</code></td>
+                                <td>核心扩展</td>
+                                <td><span class="tag tag-primary">必需</span></td>
+                            </tr>
+                            <tr>
+                                <td>lifecycle</td>
+                                <td><code class="text-cyan-400">2.7.0</code></td>
+                                <td>生命周期管理</td>
+                                <td><span class="tag tag-primary">必需</span></td>
+                            </tr>
+                            <tr>
+                                <td>hilt</td>
+                                <td><code class="text-cyan-400">2.50</code></td>
+                                <td>依赖注入</td>
+                                <td><span class="tag tag-primary">必需</span></td>
+                            </tr>
+                            <tr>
+                                <td>compose-bom</td>
+                                <td><code class="text-cyan-400">2024.02.00</code></td>
+                                <td>Compose BOM</td>
+                                <td><span class="tag tag-primary">必需</span></td>
+                            </tr>
+                            <tr>
+                                <td>material3</td>
+                                <td><code class="text-cyan-400">最新</code></td>
+                                <td>Material Design 3</td>
+                                <td><span class="tag tag-accent">推荐</span></td>
+                            </tr>
+                            <tr>
+                                <td>coroutines-test</td>
+                                <td><code class="text-cyan-400">1.7.3</code></td>
+                                <td>协程测试</td>
+                                <td><span class="tag tag-success">测试</span></td>
+                            </tr>
+                            <tr>
+                                <td>mockk</td>
+                                <td><code class="text-cyan-400">1.13.9</code></td>
+                                <td>Mock 框架</td>
+                                <td><span class="tag tag-success">测试</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-primary mb-4 inline-block">📅 发展历程</span>
+                <h2 class="section-title">版本演进</h2>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="glass p-6 rounded-xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-2xl font-bold text-cyan-400">v1.0.0</span>
+                                <span class="text-sm text-gray-400">2026-05-16</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">初始版本发布</h3>
+                            <p class="text-gray-400 mb-4">
+                                完成基础刷题功能，包含 120 道面试题目，支持分类和难度筛选
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag tag-primary">基础功能</span>
+                                <span class="tag tag-accent">MVP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="glass p-6 rounded-xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-2xl font-bold text-orange-400">v1.1.0</span>
+                                <span class="text-sm text-gray-400">2026-05-17</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">深度优化版本</h3>
+                            <p class="text-gray-400 mb-4">
+                                完成 11 个维度的深度优化，包括安全性、性能、架构重构等
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag tag-primary">11 优化维度</span>
+                                <span class="tag tag-accent">50+ 问题修复</span>
+                                <span class="tag tag-success">41 测试用例</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="glass p-6 rounded-xl">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-2xl font-bold text-green-400">v2.0.0</span>
+                                <span class="text-sm text-gray-400">规划中</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">功能增强版本</h3>
+                            <p class="text-gray-400 mb-4">
+                                计划添加收藏功能、学习进度跟踪、数据分析等高级功能
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag tag-primary">功能增强</span>
+                                <span class="tag tag-accent">规划中</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">IQ</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold">InterviewQuiz</h3>
+                        <p class="text-xs text-gray-400">技术架构可视化平台</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/17683995446/InterviewQuiz" target="_blank" class="text-gray-400 hover:text-cyan-400 transition-colors">
+                        GitHub
+                    </a>
+                    <span class="text-gray-600">|</span>
+                    <span class="text-gray-400 text-sm">v1.1.0</span>
+                </div>
+            </div>
+            <div class="text-center mt-8 text-gray-500 text-sm">
+                Built with ❤️ using Kotlin, Jetpack Compose & Mermaid.js
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#1E3A5F',
+                primaryTextColor: '#F9FAFB',
+                primaryBorderColor: '#00D4FF',
+                lineColor: '#00D4FF',
+                secondaryColor: '#111827',
+                tertiaryColor: '#0D1117',
+                background: '#0A0F1C',
+                mainBkg: '#111827',
+                nodeBorder: '#00D4FF',
+                clusterBkg: 'rgba(0, 212, 255, 0.1)',
+                clusterBorder: 'rgba(0, 212, 255, 0.3)',
+                titleColor: '#F9FAFB',
+                edgeLabelBackground: '#111827'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                diagramMarginX: 50,
+                diagramMarginY: 10,
+                actorMargin: 50,
+                width: 180,
+                height: 65,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 40,
+                mirrorActors: true,
+                bottomMarginAdj: 1,
+                rightAngles: false,
+                showSequenceNumbers: false
+            }
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Active navigation highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                particle.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card, .layer').forEach(el => {
+            el.style.opacity = '0';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
