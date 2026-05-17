@@ -1,18 +1,29 @@
 package com.interviewquiz.app.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.interviewquiz.app.data.Question
@@ -23,6 +34,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val focusManager = LocalFocusManager.current
     
     Scaffold(
         topBar = {
@@ -31,7 +43,7 @@ fun HomeScreen(
                     Column {
                         Text("InterviewQuiz", fontWeight = FontWeight.Bold)
                         Text(
-                            "${uiState.filteredQuestions.size} 道题目", 
+                            "${uiState.filteredQuestions.size}/${uiState.totalQuestionCount} 道题目", 
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
@@ -52,61 +64,115 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item {
-                    WelcomeCard(questions = uiState.filteredQuestions)
-                    Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            SearchBar(
+                query = uiState.searchQuery,
+                onQueryChange = { viewModel.updateSearchQuery(it) },
+                onClear = { viewModel.updateSearchQuery("") }
+            )
+            
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-                
-                if (uiState.showFilters) {
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     item {
-                        FilterSection(
-                            categories = viewModel.getCategories(),
-                            selectedCategory = uiState.selectedCategory,
-                            onCategorySelected = { viewModel.selectCategory(it) },
-                            difficulties = viewModel.getDifficulties(),
-                            selectedDifficulty = uiState.selectedDifficulty,
-                            onDifficultySelected = { viewModel.selectDifficulty(it) }
+                        WelcomeCard(questions = uiState.filteredQuestions)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    
+                    item {
+                        AnimatedVisibility(
+                            visible = uiState.showFilters,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
+                            FilterSection(
+                                categories = uiState.categories,
+                                selectedCategory = uiState.selectedCategory,
+                                onCategorySelected = { viewModel.selectCategory(it) },
+                                difficulties = uiState.difficulties,
+                                selectedDifficulty = uiState.selectedDifficulty,
+                                onDifficultySelected = { viewModel.selectDifficulty(it) }
+                            )
+                        }
+                    }
+                    
+                    item {
+                        Text(
+                            "题目列表",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
-                }
-                
-                item {
-                    Text(
-                        "题目列表",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                
-                items(uiState.filteredQuestions) { question ->
-                    QuestionCard(question = question)
-                }
-                
-                if (uiState.filteredQuestions.isEmpty()) {
-                    item {
-                        EmptyState()
+                    
+                    items(
+                        items = uiState.filteredQuestions,
+                        key = { question -> question.id }
+                    ) { question ->
+                        QuestionCard(question = question)
+                    }
+                    
+                    if (uiState.filteredQuestions.isEmpty()) {
+                        item {
+                            EmptyState()
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClear: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .focusRequester(focusRequester),
+        placeholder = { Text("搜索题目...") },
+        leadingIcon = {
+            Icon(Icons.Default.Search, contentDescription = "搜索")
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = {
+                    onClear()
+                    focusRequester.freeFocus()
+                }) {
+                    Icon(Icons.Default.Close, contentDescription = "清除")
+                }
+            }
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(
+            onSearch = { focusRequester.freeFocus() }
+        ),
+        shape = MaterialTheme.shapes.medium
+    )
 }
 
 @Composable
@@ -290,7 +356,12 @@ fun EmptyState() {
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("🔍", style = MaterialTheme.typography.displayLarge)
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "没有找到符合条件的题目",
@@ -452,7 +523,7 @@ fun ExplanationCard(explanation: String, isCorrect: Boolean) {
     } else {
         MaterialTheme.colorScheme.errorContainer
     }
-    val icon = if (isCorrect) "✅" else "❌"
+    val successIcon = if (isCorrect) "回答正确" else "回答错误"
     val title = if (isCorrect) "回答正确" else "回答错误"
     
     Card(
@@ -461,7 +532,11 @@ fun ExplanationCard(explanation: String, isCorrect: Boolean) {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(icon, style = MaterialTheme.typography.titleMedium)
+                Icon(
+                    imageVector = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Close,
+                    contentDescription = null,
+                    tint = if (isCorrect) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     title,
@@ -471,7 +546,7 @@ fun ExplanationCard(explanation: String, isCorrect: Boolean) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "💡 解析：$explanation",
+                text = "解析：$explanation",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

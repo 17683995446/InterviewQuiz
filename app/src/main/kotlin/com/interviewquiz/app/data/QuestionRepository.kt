@@ -9,6 +9,9 @@ interface QuestionRepository {
     fun getQuestionsByDifficulty(difficulty: String): List<Question>
     fun getCategories(): List<String>
     fun getDifficulties(): List<String>
+    fun getQuestionCount(): Int
+    fun getQuestionsPaginated(page: Int, pageSize: Int): List<Question>
+    fun searchQuestions(query: String): List<Question>
 }
 
 @Singleton
@@ -16,22 +19,52 @@ class QuestionRepositoryImpl @Inject constructor() : QuestionRepository {
     
     private val allQuestions: List<Question> by lazy { generateAllQuestions() }
     
+    private val categoryCache: Map<String, List<Question>> by lazy {
+        allQuestions.groupBy { it.category }
+    }
+    
+    private val difficultyCache: Map<String, List<Question>> by lazy {
+        allQuestions.groupBy { it.difficulty }
+    }
+    
+    private val categories: List<String> by lazy {
+        allQuestions.map { it.category }.distinct().sorted()
+    }
+    
+    private val difficultyLevels: List<String> = listOf("EASY", "MEDIUM", "HARD")
+    
     override fun getQuestions(): List<Question> = allQuestions
     
+    override fun getQuestionCount(): Int = allQuestions.size
+    
     override fun getQuestionsByCategory(category: String): List<Question> {
-        return allQuestions.filter { it.category == category }
+        return categoryCache[category] ?: emptyList()
     }
     
     override fun getQuestionsByDifficulty(difficulty: String): List<Question> {
-        return allQuestions.filter { it.difficulty == difficulty }
+        return difficultyCache[difficulty] ?: emptyList()
     }
     
-    override fun getCategories(): List<String> {
-        return allQuestions.map { it.category }.distinct().sorted()
+    override fun getCategories(): List<String> = categories
+    
+    override fun getDifficulties(): List<String> = difficultyLevels
+    
+    override fun getQuestionsPaginated(page: Int, pageSize: Int): List<Question> {
+        val startIndex = page * pageSize
+        if (startIndex >= allQuestions.size) return emptyList()
+        val endIndex = minOf(startIndex + pageSize, allQuestions.size)
+        return allQuestions.subList(startIndex, endIndex)
     }
     
-    override fun getDifficulties(): List<String> {
-        return listOf("EASY", "MEDIUM", "HARD")
+    override fun searchQuestions(query: String): List<Question> {
+        if (query.isBlank()) return allQuestions
+        val lowerQuery = query.lowercase()
+        return allQuestions.filter { question ->
+            question.title.lowercase().contains(lowerQuery) ||
+            question.category.lowercase().contains(lowerQuery) ||
+            question.explanation.lowercase().contains(lowerQuery) ||
+            question.options.any { it.lowercase().contains(lowerQuery) }
+        }
     }
     
     private fun generateAllQuestions(): List<Question> {

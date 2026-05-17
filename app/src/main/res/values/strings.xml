@@ -1,4 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">InterviewQuiz</string>
+    
+    <string name="welcome_title">欢迎使用 InterviewQuiz！</string>
+    <string name="welcome_subtitle">准备面试的最佳伙伴，海量高质量题目</string>
+    
+    <string name="search_placeholder">搜索题目...</string>
+    <string name="search_clear">清除</string>
+    
+    <string name="filter_title">筛选条件</string>
+    <string name="filter_category">分类</string>
+    <string name="filter_difficulty">难度</string>
+    <string name="filter_all">全部</string>
+    
+    <string name="question_list_title">题目列表</string>
+    <string name="questions_count">%1$d/%2$d 道题目</string>
+    
+    <string name="empty_state_title">没有找到符合条件的题目</string>
+    <string name="empty_state_subtitle">请尝试调整筛选条件</string>
+    
+    <string name="difficulty_easy">简单</string>
+    <string name="difficulty_medium">中等</string>
+    <string name="difficulty_hard">困难</string>
+    
+    <string name="answer_correct">回答正确</string>
+    <string name="answer_wrong">回答错误</string>
+    <string name="explanation_label">解析：</string>
+    
+    <string name="expand_hint">点击查看详情</string>
+    <string name="collapse_hint">点击收起</string>
+    
+    <string name="action_filter">筛选</string>
+    <string name="action_reset">重置</string>
+    <string name="action_search">搜索</string>
+    
+    <string name="content_description_filter">筛选按钮</string>
+    <string name="content_description_reset">重置筛选按钮</string>
+    <string name="content_description_search">搜索图标</string>
+    <string name="content_description_star">欢迎图标</string>
+    <string name="content_description_check">正确图标</string>
+    <string name="content_description_close">关闭图标</string>
+    <string name="content_description_question_expand">展开题目详情</string>
+    <string name="content_description_correct_answer">正确答案</string>
+    
+    <string name="category_algorithm">算法与数据结构</string>
+    <string name="category_java_kotlin">Java与Kotlin</string>
+    <string name="category_database">数据库</string>
+    <string name="category_network">网络基础</string>
+    <string name="category_os">操作系统</string>
+    <string name="category_android">Android开发</string>
 </resources>
