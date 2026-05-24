@@ -51,23 +51,21 @@ class FilterQuestionsUseCase @Inject constructor(
         difficulty: String? = null,
         searchQuery: String? = null
     ): List<Question> {
-        var questions = repository.getQuestions()
-        
-        category?.let { cat ->
-            questions = questions.filter { it.category == cat }
-        }
-        
-        difficulty?.let { diff ->
-            questions = questions.filter { it.difficulty == diff }
+        // 使用 repository 的缓存优先，减少全量筛选
+        var questions = when {
+            category != null && difficulty != null -> {
+                repository.getQuestionsByCategory(category)
+                    .filter { it.difficulty == difficulty }
+            }
+            category != null -> repository.getQuestionsByCategory(category)
+            difficulty != null -> repository.getQuestionsByDifficulty(difficulty)
+            else -> repository.getQuestions()
         }
         
         searchQuery?.takeIf { it.isNotBlank() }?.let { query ->
             val lowerQuery = query.lowercase()
             questions = questions.filter { question ->
-                question.title.lowercase().contains(lowerQuery) ||
-                question.category.lowercase().contains(lowerQuery) ||
-                question.explanation.lowercase().contains(lowerQuery) ||
-                question.options.any { it.lowercase().contains(lowerQuery) }
+                repository.isQuestionMatch(question, lowerQuery)
             }
         }
         

@@ -1,5 +1,7 @@
 package com.interviewquiz.app.data
 
+import com.interviewquiz.app.util.AppLogger
+import java.util.LinkedHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -12,12 +14,23 @@ interface QuestionRepository {
     fun getQuestionCount(): Int
     fun getQuestionsPaginated(page: Int, pageSize: Int): List<Question>
     fun searchQuestions(query: String): List<Question>
+    // 新增：提供匹配函数供外部使用
+    fun isQuestionMatch(question: Question, lowerQuery: String): Boolean
 }
 
 @Singleton
 class QuestionRepositoryImpl @Inject constructor() : QuestionRepository {
     
-    private val allQuestions: List<Question> by lazy { generateAllQuestions() }
+    companion object {
+        private const val TAG = "QuestionRepository"
+    }
+    
+    private val allQuestions: List<Question> by lazy { 
+        AppLogger.d(TAG, "Generating questions...")
+        val questions = generateAllQuestions()
+        AppLogger.d(TAG, "Generated ${questions.size} questions")
+        questions
+    }
     
     private val categoryCache: Map<String, List<Question>> by lazy {
         allQuestions.groupBy { it.category }
@@ -32,6 +45,24 @@ class QuestionRepositoryImpl @Inject constructor() : QuestionRepository {
     }
     
     private val difficultyLevels: List<String> = listOf("EASY", "MEDIUM", "HARD")
+    
+    // 搜索缓存：使用 LinkedHashMap 实现真正的 LRU 缓存，配合 synchronized 保证线程安全
+    // accessOrder = true 表示按访问顺序排序，实现 LRU
+    private val searchCache = object {
+        private val cache = object : LinkedHashMap<String, List<Question>>(20, 0.75f, true) {
+            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<Question>>?): Boolean {
+                return size > 20
+            }
+        }
+        
+        operator fun get(key: String): List<Question>? = synchronized(cache) {
+            cache[key]
+        }
+        
+        operator fun set(key: String, value: List<Question>) = synchronized(cache) {
+            cache[key] = value
+        }
+    }
     
     override fun getQuestions(): List<Question> = allQuestions
     
@@ -50,21 +81,53 @@ class QuestionRepositoryImpl @Inject constructor() : QuestionRepository {
     override fun getDifficulties(): List<String> = difficultyLevels
     
     override fun getQuestionsPaginated(page: Int, pageSize: Int): List<Question> {
-        val startIndex = page * pageSize
-        if (startIndex >= allQuestions.size) return emptyList()
-        val endIndex = minOf(startIndex + pageSize, allQuestions.size)
-        return allQuestions.subList(startIndex, endIndex)
+        try {
+            // 安全边界检查
+            val safePage = page.coerceAtLeast(0)
+            val safePageSize = pageSize.coerceIn(1, 1000) // 限制最大页大小
+            
+            val startIndex = safePage * safePageSize
+            if (startIndex >= allQuestions.size) return emptyList()
+            val endIndex = minOf(startIndex + safePageSize, allQuestions.size)
+            return allQuestions.subList(startIndex, endIndex)
+        } catch (e: Exception) {
+            AppLogger.e("QuestionRepository", "Pagination failed", e)
+            return emptyList()
+        }
     }
     
     override fun searchQuestions(query: String): List<Question> {
-        if (query.isBlank()) return allQuestions
-        val lowerQuery = query.lowercase()
-        return allQuestions.filter { question ->
-            question.title.lowercase().contains(lowerQuery) ||
-            question.category.lowercase().contains(lowerQuery) ||
-            question.explanation.lowercase().contains(lowerQuery) ||
-            question.options.any { it.lowercase().contains(lowerQuery) }
+        try {
+            // 安全检查：过短或过长的查询直接返回
+            when {
+                query.isBlank() -> return allQuestions
+                query.length > 1000 -> return emptyList()
+            }
+            
+            val lowerQuery = query.lowercase().trim()
+            
+            // 快速路径：先查缓存
+            searchCache[lowerQuery]?.let { return it }
+            
+            val results = allQuestions.filter { question ->
+                isQuestionMatch(question, lowerQuery)
+            }
+            
+            // 更新缓存：LinkedHashMap 会自动按 LRU 淘汰最旧条目
+            searchCache[lowerQuery] = results
+            
+            return results
+        } catch (e: Exception) {
+            AppLogger.e("QuestionRepository", "Search failed", e)
+            return emptyList()
         }
+    }
+    
+    override fun isQuestionMatch(question: Question, lowerQuery: String): Boolean {
+        return question.title.lowercase().contains(lowerQuery) ||
+               question.category.lowercase().contains(lowerQuery) ||
+               question.explanation.lowercase().contains(lowerQuery) ||
+               question.options.any { it.lowercase().contains(lowerQuery) }
     }
     
     private fun generateAllQuestions(): List<Question> {

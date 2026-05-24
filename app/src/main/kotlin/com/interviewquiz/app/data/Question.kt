@@ -34,6 +34,8 @@ data class Question(
     }
     
     fun getOptionLetter(index: Int): Char {
-        return ('A'.code + index).toChar()
+        // 边界验证，防止超出字母范围
+        val safeIndex = index.coerceIn(0, 25)
+        return ('A'.code + safeIndex).toChar()
     }
 }

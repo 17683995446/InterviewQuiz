@@ -1,6 +1,7 @@
 package com.interviewquiz.app.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
@@ -9,12 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,6 +23,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.interviewquiz.app.data.Question
+import com.interviewquiz.app.domain.model.CategoryStats
+import com.interviewquiz.app.domain.model.DifficultyStats
+import com.interviewquiz.app.domain.model.QuizProgress
+import com.interviewquiz.app.util.AppLogger
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +35,12 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+    
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { 
+            AppLogger.e("HomeScreen", "Error occurred: $it")
+        }
+    }
     
     Scaffold(
         topBar = {
@@ -54,6 +60,9 @@ fun HomeScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 actions = {
+                    IconButton(onClick = { viewModel.toggleStatistics() }) {
+                        Icon(Icons.Default.Analytics, "统计")
+                    }
                     IconButton(onClick = { viewModel.toggleFilters() }) {
                         Icon(Icons.Default.FilterList, "筛选")
                     }
@@ -75,6 +84,14 @@ fun HomeScreen(
                 onClear = { viewModel.updateSearchQuery("") }
             )
             
+            // 错误提示
+            uiState.error?.let { error ->
+                ErrorBanner(
+                    message = error,
+                    onDismiss = { viewModel.clearError() }
+                )
+            }
+            
             if (uiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -89,15 +106,18 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        WelcomeCard(questions = uiState.filteredQuestions)
+                        WelcomeCard(
+                            questions = uiState.filteredQuestions,
+                            statistics = uiState.statistics
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     
                     item {
                         AnimatedVisibility(
                             visible = uiState.showFilters,
-                            enter = expandVertically(),
-                            exit = shrinkVertically()
+                            enter = expandVertically(animationSpec = tween(durationMillis = 300)),
+                            exit = shrinkVertically(animationSpec = tween(durationMillis = 300))
                         ) {
                             FilterSection(
                                 categories = uiState.categories,
@@ -106,6 +126,19 @@ fun HomeScreen(
                                 difficulties = uiState.difficulties,
                                 selectedDifficulty = uiState.selectedDifficulty,
                                 onDifficultySelected = { viewModel.selectDifficulty(it) }
+                            )
+                        }
+                    }
+                    
+                    item {
+                        AnimatedVisibility(
+                            visible = uiState.showStatistics,
+                            enter = expandVertically(animationSpec = tween(durationMillis = 300)),
+                            exit = shrinkVertically(animationSpec = tween(durationMillis = 300))
+                        ) {
+                            StatisticsSection(
+                                statistics = uiState.statistics,
+                                onClearAllProgress = { viewModel.clearAllProgress() }
                             )
                         }
                     }
@@ -123,15 +156,57 @@ fun HomeScreen(
                         items = uiState.filteredQuestions,
                         key = { question -> question.id }
                     ) { question ->
-                        QuestionCard(question = question)
+                        val progress = viewModel.getProgress(question.id)
+                        QuestionCard(
+                            question = question,
+                            progress = progress,
+                            onAnswer = { answerIndex ->
+                                viewModel.recordAnswer(question, answerIndex)
+                            },
+                            onResetProgress = {
+                                viewModel.resetQuestionProgress(question.id)
+                            }
+                        )
                     }
                     
-                    if (uiState.filteredQuestions.isEmpty()) {
+                    if (uiState.filteredQuestions.isEmpty() && !uiState.isLoading) {
                         item {
                             EmptyState()
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ErrorBanner(
+    message: String,
+    onDismiss: () -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.errorContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "关闭",
+                    tint = MaterialTheme.colorScheme.onErrorContainer
+                )
             }
         }
     }
@@ -176,7 +251,10 @@ private fun SearchBar(
 }
 
 @Composable
-fun WelcomeCard(questions: List<Question>) {
+fun WelcomeCard(
+    questions: List<Question>,
+    statistics: com.interviewquiz.app.domain.model.QuizStatistics
+) {
     val easyCount = questions.count { it.difficulty == "EASY" }
     val mediumCount = questions.count { it.difficulty == "MEDIUM" }
     val hardCount = questions.count { it.difficulty == "HARD" }
@@ -212,7 +290,34 @@ fun WelcomeCard(questions: List<Question>) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // 进度显示
+            if (statistics.completedQuestions > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "已完成 ${statistics.completedQuestions}/${statistics.totalQuestions}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        "正确率 ${(statistics.accuracyRate * 100).toInt()}%",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    progress = { statistics.completionRate },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -224,6 +329,200 @@ fun WelcomeCard(questions: List<Question>) {
             }
         }
     }
+}
+
+@Composable
+fun StatisticsSection(
+    statistics: com.interviewquiz.app.domain.model.QuizStatistics,
+    onClearAllProgress: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "学习统计",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                if (statistics.completedQuestions > 0) {
+                    TextButton(onClick = onClearAllProgress) {
+                        Text("清除进度")
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // 总体统计
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "${statistics.completedQuestions}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text("已完成", style = MaterialTheme.typography.labelSmall)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "${(statistics.accuracyRate * 100).toInt()}%",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Text("正确率", style = MaterialTheme.typography.labelSmall)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "${statistics.totalAttempts}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    Text("总答题", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+            
+            // 分类统计
+            if (statistics.categoryStats.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "分类统计",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                statistics.categoryStats.values.forEach { categoryStat ->
+                    CategoryStatsItem(categoryStat)
+                }
+            }
+            
+            // 难度统计
+            if (statistics.difficultyStats.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "难度统计",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                statistics.difficultyStats.values.forEach { difficultyStat ->
+                    DifficultyStatsItem(difficultyStat)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryStatsItem(stat: CategoryStats) {
+    val completionRate = if (stat.totalQuestions > 0) {
+        stat.completedQuestions.toFloat() / stat.totalQuestions
+    } else 0f
+    
+    val accuracyRate = if (stat.completedQuestions > 0) {
+        stat.correctAnswers.toFloat() / stat.completedQuestions
+    } else 0f
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stat.category,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "${stat.completedQuestions}/${stat.totalQuestions}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { completionRate },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            if (stat.completedQuestions > 0) {
+                Text(
+                    "正确率: ${(accuracyRate * 100).toInt()}%",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+fun DifficultyStatsItem(stat: DifficultyStats) {
+    val color = when (stat.difficulty) {
+        "EASY" -> MaterialTheme.colorScheme.primary
+        "MEDIUM" -> MaterialTheme.colorScheme.secondary
+        "HARD" -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.tertiary
+    }
+    
+    val completionRate = if (stat.totalQuestions > 0) {
+        stat.completedQuestions.toFloat() / stat.totalQuestions
+    } else 0f
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stat.difficulty,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = color
+                )
+                Text(
+                    "${stat.completedQuestions}/${stat.totalQuestions}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            LinearProgressIndicator(
+                progress = { completionRate },
+                modifier = Modifier.fillMaxWidth(),
+                color = color
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable
@@ -379,9 +678,23 @@ fun EmptyState() {
 }
 
 @Composable
-fun QuestionCard(question: Question) {
+fun QuestionCard(
+    question: Question,
+    progress: QuizProgress?,
+    onAnswer: (Int) -> Unit,
+    onResetProgress: () -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedAnswer by remember { mutableStateOf<Int?>(null) }
+    
+    // 使用 mutableState 但通过 LaunchedEffect 确保同步
+    var selectedAnswer by remember { 
+        mutableStateOf<Int?>(progress?.lastAnswer) 
+    }
+    
+    // 当 progress 更新时同步到本地状态
+    LaunchedEffect(progress?.lastAnswer) {
+        selectedAnswer = progress?.lastAnswer
+    }
     
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -395,12 +708,35 @@ fun QuestionCard(question: Question) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    question.category,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                DifficultyChip(question.difficulty)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        question.category,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    if (progress != null && progress.isCompleted) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = if (progress.isCorrect == true) 
+                                Icons.Default.CheckCircle else Icons.Default.Close,
+                            contentDescription = if (progress.isCorrect == true) "已答对" else "已答错",
+                            tint = if (progress.isCorrect == true) 
+                                MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    DifficultyChip(question.difficulty)
+                    if (progress != null && progress.attempts > 0) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "×${progress.attempts}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -418,13 +754,32 @@ fun QuestionCard(question: Question) {
                             isSelected = selectedAnswer == index,
                             isCorrect = index == question.correctAnswer,
                             showCorrectness = selectedAnswer != null,
-                            onClick = { selectedAnswer = index }
+                            onClick = {
+                                if (selectedAnswer == null) {
+                                    selectedAnswer = index
+                                    onAnswer(index)
+                                }
+                            }
                         )
                     }
                 }
                 if (selectedAnswer != null) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    ExplanationCard(explanation = question.explanation, isCorrect = selectedAnswer == question.correctAnswer)
+                    ExplanationCard(
+                        explanation = question.explanation,
+                        isCorrect = selectedAnswer == question.correctAnswer
+                    )
+                    
+                    // 重置进度按钮
+                    if (progress != null && progress.isCompleted) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(onClick = {
+                            selectedAnswer = null // 先清除本地状态
+                            onResetProgress()
+                        }) {
+                            Text("重新答题")
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -523,7 +878,6 @@ fun ExplanationCard(explanation: String, isCorrect: Boolean) {
     } else {
         MaterialTheme.colorScheme.errorContainer
     }
-    val successIcon = if (isCorrect) "回答正确" else "回答错误"
     val title = if (isCorrect) "回答正确" else "回答错误"
     
     Card(

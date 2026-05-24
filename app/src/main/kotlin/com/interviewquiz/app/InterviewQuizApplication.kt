@@ -3,6 +3,7 @@ package com.interviewquiz.app
 import android.app.Application
 import android.util.Log
 import com.interviewquiz.app.security.SecurityManager
+import com.interviewquiz.app.security.Severity
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -26,11 +27,11 @@ class InterviewQuizApplication : Application() {
 
     private fun performSecurityChecks() {
         val issues = securityManager.getSecurityIssues()
-        
+
         for (issue in issues) {
             when (issue.severity) {
-                com.interviewquiz.app.security.Severity.HIGH,
-                com.interviewquiz.app.security.Severity.CRITICAL -> {
+                Severity.HIGH,
+                Severity.CRITICAL -> {
                     Log.w(TAG, "Security Issue: ${issue.description}")
                 }
                 else -> {

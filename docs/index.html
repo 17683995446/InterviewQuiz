@@ -6,7 +6,7 @@
     <title>InterviewQuiz 技术架构可视化平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1E3A5F;
@@ -198,170 +198,13 @@
             overflow-x: auto;
         }
 
-        .diagram-container svg {
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* Mermaid theme overrides */
-        .mermaid {
-            color: var(--text-primary);
-        }
-
-        .mermaid .node {
-            fill: var(--bg-card);
-            stroke: var(--secondary);
-            stroke-width: 2px;
-        }
-
-        .mermaid .edgePath {
-            stroke: var(--secondary);
-            stroke-width: 2px;
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--secondary), #0099CC);
-            color: var(--bg-dark);
-            padding: 0.75rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--secondary);
-            padding: 0.75rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid var(--secondary);
-            cursor: pointer;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 212, 255, 0.1);
-        }
-
-        /* Tags */
-        .tag {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .tag-primary {
-            background: rgba(0, 212, 255, 0.2);
-            color: var(--secondary);
-        }
-
-        .tag-accent {
-            background: rgba(255, 107, 53, 0.2);
-            color: var(--accent);
-        }
-
-        .tag-success {
-            background: rgba(34, 197, 94, 0.2);
-            color: #22C55E;
-        }
-
-        /* Section titles */
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1rem;
-        }
-
-        /* Stats grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            border-color: var(--secondary);
-            transform: translateY(-4px);
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--secondary);
-            line-height: 1;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        /* Timeline */
-        .timeline {
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, var(--secondary), var(--accent));
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-bottom: 2rem;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -2rem;
-            top: 0.25rem;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--secondary);
-            transform: translateX(-5px);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-        }
-
         /* Code blocks */
         .code-block {
             background: #0D1117;
             border-radius: 8px;
-            padding: 1rem;
+            padding: 1.5rem;
             overflow-x: auto;
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.875rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -444,17 +287,153 @@
             border: 1px solid rgba(168, 85, 247, 0.3);
         }
 
-        /* Icon containers */
-        .icon-container {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
+        /* Tabs */
+        .tab-container {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--secondary), #0099CC);
-            color: var(--bg-dark);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .tab.active {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tag-primary {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--secondary);
+        }
+
+        .tag-accent {
+            background: rgba(255, 107, 53, 0.2);
+            color: var(--accent);
+        }
+
+        .tag-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+        }
+
+        .tag-warning {
+            background: rgba(234, 179, 8, 0.2);
+            color: #EAB308;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-4px);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--secondary), var(--accent));
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--secondary);
+            transform: translateX(-5px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
 
         /* Mobile responsive */
@@ -485,6 +464,30 @@
                 display: none;
             }
         }
+
+        /* Expandable sections */
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .expandable-content.expanded {
+            max-height: 2000px;
+        }
+
+        .expand-btn {
+            background: transparent;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .expand-btn.rotated {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -502,7 +505,7 @@
                     </div>
                     <div>
                         <h1 class="text-lg font-bold text-white">InterviewQuiz</h1>
-                        <p class="text-xs text-gray-400">技术架构可视化</p>
+                        <p class="text-xs text-gray-400">技术架构可视化平台</p>
                     </div>
                 </div>
 
@@ -510,10 +513,13 @@
                 <div class="nav-desktop hidden md:flex items-center space-x-1">
                     <a href="#overview" class="nav-item active">概览</a>
                     <a href="#architecture" class="nav-item">架构</a>
+                    <a href="#layers" class="nav-item">分层设计</a>
                     <a href="#flow" class="nav-item">流程</a>
                     <a href="#sequence" class="nav-item">时序</a>
                     <a href="#modules" class="nav-item">模块</a>
                     <a href="#tech" class="nav-item">技术栈</a>
+                    <a href="#security" class="nav-item">安全</a>
+                    <a href="#deployment" class="nav-item">部署</a>
                 </div>
 
                 <!-- GitHub Link -->
@@ -525,7 +531,7 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-gradient pt-32 pb-20 relative overflow-hidden">
+    <section id="hero" class="hero-gradient pt-32 pb-20 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center">
                 <div class="animate-fade-in-up">
@@ -539,7 +545,7 @@
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 mb-12">
                         <a href="#architecture" class="btn-primary">探索架构</a>
-                        <a href="#flow" class="btn-secondary">查看流程</a>
+                        <a href="#tech" class="btn-secondary">技术栈</a>
                     </div>
                 </div>
 
@@ -561,6 +567,14 @@
                         <div class="stat-number">120</div>
                         <div class="stat-label">面试题目</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">UseCase</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">6</div>
+                        <div class="stat-label">架构层</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -575,221 +589,486 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <span class="tag tag-accent mb-4 inline-block">📊 项目概览</span>
-                <h2 class="section-title">系统整体架构</h2>
+                <h2 class="section-title">项目概述</h2>
                 <p class="text-gray-400 max-w-2xl mx-auto">
-                    InterviewQuiz 采用分层架构设计，从上到下依次为表现层、视图模型层、领域层和数据层
+                    了解 InterviewQuiz 项目的核心特点和设计理念
                 </p>
             </div>
 
-            <!-- Architecture Layers -->
-            <div class="max-w-4xl mx-auto space-y-4">
-                <div class="layer layer-1">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="icon-container">🎨</div>
-                            <div>
-                                <h3 class="text-xl font-bold text-cyan-400">表现层 (UI Layer)</h3>
-                                <p class="text-sm text-gray-400">Jetpack Compose 声明式 UI</p>
-                            </div>
-                        </div>
-                        <span class="tag tag-primary">用户界面</span>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">📱</div>
-                            <div class="text-sm">HomeScreen</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">📋</div>
-                            <div class="text-sm">QuestionCard</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">🔍</div>
-                            <div class="text-sm">FilterSection</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">🔎</div>
-                            <div class="text-sm">SearchBar</div>
-                        </div>
-                    </div>
+            <!-- Overview Cards -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-xl font-bold mb-3">设计理念</h3>
+                    <p class="text-gray-400 mb-4">采用 Clean Architecture 架构模式，实现关注点分离，每层职责清晰。</p>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li>• 单一职责原则</li>
+                        <li>• 依赖倒置原则</li>
+                        <li>• 接口隔离原则</li>
+                        <li>• 可测试性优先</li>
+                    </ul>
                 </div>
 
-                <div class="layer layer-2">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="icon-container">⚙️</div>
-                            <div>
-                                <h3 class="text-xl font-bold text-orange-400">视图模型层 (ViewModel Layer)</h3>
-                                <p class="text-sm text-gray-400">状态管理与业务逻辑协调</p>
-                            </div>
-                        </div>
-                        <span class="tag tag-accent">状态管理</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">📊</div>
-                            <div class="text-sm">HomeViewModel</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">🔄</div>
-                            <div class="text-sm">BaseViewModel</div>
-                        </div>
-                    </div>
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🛡️</div>
+                    <h3 class="text-xl font-bold mb-3">安全设计</h3>
+                    <p class="text-gray-400 mb-4">注重应用安全，从多个维度保障用户数据和应用安全。</p>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li>• Root / 模拟器检测</li>
+                        <li>• 调试模式检测</li>
+                        <li>• FLAG_SECURE 防止截图</li>
+                        <li>• 网络安全配置</li>
+                    </ul>
                 </div>
 
-                <div class="layer layer-3">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="icon-container">💼</div>
-                            <div>
-                                <h3 class="text-xl font-bold text-green-400">领域层 (Domain Layer)</h3>
-                                <p class="text-sm text-gray-400">核心业务逻辑与用例</p>
-                            </div>
-                        </div>
-                        <span class="tag tag-success">业务逻辑</span>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">📝</div>
-                            <div class="text-sm">UseCases</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">🏷️</div>
-                            <div class="text-sm">Result</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">📊</div>
-                            <div class="text-sm">Difficulty</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">❓</div>
-                            <div class="text-sm">Question</div>
-                        </div>
-                    </div>
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">⚡</div>
+                    <h3 class="text-xl font-bold mb-3">性能优化</h3>
+                    <p class="text-gray-400 mb-4">从启动到运行时，全方位优化应用性能。</p>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li>• 数据缓存机制</li>
+                        <li>• 懒加载实现</li>
+                        <li>• Compose 重组优化</li>
+                        <li>• KSP 注解处理</li>
+                    </ul>
                 </div>
 
-                <div class="layer layer-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-4">
-                            <div class="icon-container">🗄️</div>
-                            <div>
-                                <h3 class="text-xl font-bold text-purple-400">数据层 (Data Layer)</h3>
-                                <p class="text-sm text-gray-400">数据存储与获取</p>
-                            </div>
-                        </div>
-                        <span class="tag" style="background: rgba(168, 85, 247, 0.2); color: #A855F7;">数据访问</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">📚</div>
-                            <div class="text-sm">QuestionRepository</div>
-                        </div>
-                        <div class="glass-light rounded-lg p-3 text-center">
-                            <div class="text-2xl mb-1">🛡️</div>
-                            <div class="text-sm">SecurityManager</div>
-                        </div>
-                    </div>
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🧪</div>
+                    <h3 class="text-xl font-bold mb-3">测试覆盖</h3>
+                    <p class="text-gray-400 mb-4">完善的测试体系保障代码质量。</p>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li>• 单元测试</li>
+                        <li>• 集成测试</li>
+                        <li>• UI 测试</li>
+                        <li>• Mock 测试</li>
+                    </ul>
+                </div>
+
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🔄</div>
+                    <h3 class="text-xl font-bold mb-3">持续集成</h3>
+                    <p class="text-gray-400 mb-4">GitHub Actions 自动化构建和部署流程。</p>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li>• 代码 Lint 检查</li>
+                        <li>• 自动运行测试</li>
+                        <li>• APK 构建发布</li>
+                        <li>• 依赖安全扫描</li>
+                    </ul>
+                </div>
+
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">📝</div>
+                    <h3 class="text-xl font-bold mb-3">代码质量</h3>
+                    <p class="text-gray-400 mb-4">遵循最佳实践，编写可维护的高质量代码。</p>
+                    <ul class="text-gray-400 text-sm space-y-2">
+                        <li>• KtLint 格式化</li>
+                        <li>• 代码规范审查</li>
+                        <li>• 文档完整性</li>
+                        <li>• 可扩展性设计</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Architecture Section -->
-    <section id="architecture" class="py-20 relative">
+    <section id="architecture" class="py-20 relative bg-gradient-to-b from-transparent to-black/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <span class="tag tag-primary mb-4 inline-block">🏗️ 架构设计</span>
                 <h2 class="section-title">整体架构图</h2>
                 <p class="text-gray-400 max-w-2xl mx-auto">
-                    采用 MVVM + Clean Architecture 架构模式，实现UI与业务逻辑的完全解耦
+                    采用 MVVM + Clean Architecture 架构模式，实现 UI 与业务逻辑的完全解耦
                 </p>
             </div>
 
-            <div class="diagram-container">
-                <pre class="mermaid">
+            <!-- Architecture Tabs -->
+            <div class="tab-container">
+                <button class="tab active" data-tab="tab-arch-1">整体架构</button>
+                <button class="tab" data-tab="tab-arch-2">数据流向</button>
+                <button class="tab" data-tab="tab-arch-3">组件关系</button>
+            </div>
+
+            <div class="tab-content active" id="tab-arch-1">
+                <div class="diagram-container">
+                    <pre class="mermaid">
 graph TB
     subgraph "🎨 表现层 (UI Layer)"
         A[📱 HomeScreen]
         B[📋 QuestionCard]
         C[🔍 FilterSection]
         D[🔎 SearchBar]
+        E[✨ WelcomeCard]
     end
     
     subgraph "⚙️ 视图模型层 (ViewModel Layer)"
-        E[📊 HomeViewModel]
-        F[🔄 BaseViewModel]
+        F[📊 HomeViewModel]
+        G[🔄 BaseViewModel]
+        H[🎯 UiState]
     end
     
     subgraph "💼 领域层 (Domain Layer)"
-        G[📝 GetQuestionsUseCase]
-        H[🎯 FilterQuestionsUseCase]
-        I[🔎 SearchQuestionsUseCase]
-        J[✅ Result]
+        I[📝 GetQuestionsUseCase]
+        J[🎯 FilterQuestionsUseCase]
+        K[🔎 SearchQuestionsUseCase]
+        L[📦 GetCategoriesUseCase]
+        M[📊 GetDifficultiesUseCase]
+        N[🔢 GetQuestionCountUseCase]
+        O[✅ Result]
+        P[🎯 Difficulty]
     end
     
     subgraph "🗄️ 数据层 (Data Layer)"
-        K[📚 QuestionRepository]
-        L[💾 QuestionRepositoryImpl]
-        M[❓ Question]
+        Q[📚 QuestionRepository]
+        R[💾 QuestionRepositoryImpl]
+        S[❓ Question]
     end
     
-    subgraph "🔧 基础设施层"
-        N[💉 Hilt DI]
-        O[🛡️ SecurityManager]
-        P[📝 AppLogger]
+    subgraph "🛡️ 基础设施层 (Infrastructure Layer)"
+        T[💉 Hilt DI]
+        U[🔒 SecurityManager]
+        V[📝 AppLogger]
+        W[⚠️ AppException]
     end
     
-    A --> E
-    B --> E
-    C --> E
-    D --> E
-    E --> G
-    E --> H
-    E --> I
-    G --> K
-    H --> K
-    I --> K
-    K --> L
-    L --> M
-    N --> G
-    N --> H
-    N --> I
-    N --> K
-    N --> E
-    O --> N
-    P --> N
-                </pre>
+    A --> F
+    B --> F
+    C --> F
+    D --> F
+    E --> F
+    F --> I
+    F --> J
+    F --> K
+    F --> L
+    F --> M
+    F --> N
+    F -.-> H
+    F --> G
+    I --> Q
+    J --> Q
+    K --> Q
+    L --> Q
+    M --> Q
+    N --> Q
+    Q --> R
+    R --> S
+    S --> P
+    I --> O
+    J --> O
+    K --> O
+    T --> I
+    T --> J
+    T --> K
+    T --> L
+    T --> M
+    T --> N
+    T --> Q
+    T --> F
+    U --> T
+    V --> T
+    W --> G
+                    </pre>
+                </div>
             </div>
 
-            <!-- Architecture Features -->
-            <div class="grid md:grid-cols-3 gap-6 mt-12">
-                <div class="card p-6">
-                    <div class="text-4xl mb-4">🎯</div>
-                    <h3 class="text-xl font-bold mb-2">职责分离</h3>
-                    <p class="text-gray-400 text-sm">
-                        每层只关注自己的职责，UI层负责展示，ViewModel层负责状态管理，Domain层处理业务逻辑
-                    </p>
+            <div class="tab-content" id="tab-arch-2">
+                <div class="diagram-container">
+                    <pre class="mermaid">
+graph LR
+    A([👤 用户操作]) --> B[HomeScreen]
+    B --> C{输入类型?}
+    C -->|搜索查询| D[SearchBar]
+    D --> E[更新 searchQuery]
+    C -->|筛选条件| F[FilterSection]
+    F --> G[选择 category / difficulty]
+    C -->|展开题目| H[QuestionCard]
+    H --> I[展开/收起]
+    
+    E --> J[HomeViewModel]
+    G --> J
+    I --> J
+    
+    J --> K{需要更新?}
+    K -->|是| L[applyFilters]
+    L --> M[FilterQuestionsUseCase]
+    M --> N[QuestionRepository]
+    N --> O[返回过滤结果]
+    O --> P[更新 filteredQuestions]
+    P --> Q[StateFlow 发射]
+    Q --> R[HomeScreen 重组]
+    R --> S[UI 更新]
+    
+    K -->|否| T{数据加载?}
+    T -->|是| U[loadQuestions]
+    U --> V[初始化 UseCase]
+    V --> W[获取所有数据]
+    W --> X[缓存 category/difficulty]
+    X --> Y[更新 uiState]
+    Y --> R
+                    </pre>
                 </div>
-                <div class="card p-6">
-                    <div class="text-4xl mb-4">🔄</div>
-                    <h3 class="text-xl font-bold mb-2">依赖倒置</h3>
-                    <p class="text-gray-400 text-sm">
-                        通过接口抽象，Domain层不依赖具体实现，便于单元测试和模块替换
-                    </p>
+            </div>
+
+            <div class="tab-content" id="tab-arch-3">
+                <div class="diagram-container">
+                    <pre class="mermaid">
+classDiagram
+    HomeScreen *-- QuestionCard
+    HomeScreen *-- FilterSection
+    HomeScreen *-- SearchBar
+    HomeScreen *-- WelcomeCard
+    HomeScreen --> HomeViewModel
+    HomeViewModel --|> BaseViewModel
+    HomeViewModel --> HomeUiState
+    
+    HomeViewModel --> GetQuestionsUseCase
+    HomeViewModel --> FilterQuestionsUseCase
+    HomeViewModel --> SearchQuestionsUseCase
+    HomeViewModel --> GetCategoriesUseCase
+    HomeViewModel --> GetDifficultiesUseCase
+    
+    GetQuestionsUseCase --> QuestionRepository
+    FilterQuestionsUseCase --> QuestionRepository
+    SearchQuestionsUseCase --> QuestionRepository
+    GetCategoriesUseCase --> QuestionRepository
+    GetDifficultiesUseCase --> QuestionRepository
+    
+    QuestionRepository <|.. QuestionRepositoryImpl
+    QuestionRepositoryImpl --> Question
+    Question --> Difficulty
+    
+    BaseViewModel --> AppLogger
+    BaseViewModel --> AppException
+    
+    SecurityManager ..> QuestionRepositoryImpl
+                    </pre>
                 </div>
-                <div class="card p-6">
-                    <div class="text-4xl mb-4">🧪</div>
-                    <h3 class="text-xl font-bold mb-2">易于测试</h3>
-                    <p class="text-gray-400 text-sm">
-                        各层可独立测试，通过Mock对象可以轻松验证业务逻辑的正确性
-                    </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Layers Section -->
+    <section id="layers" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="tag tag-success mb-4 inline-block">📚 分层设计</span>
+                <h2 class="section-title">架构分层详解</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    InterviewQuiz 采用 6 层架构设计，从上到下职责清晰
+                </p>
+            </div>
+
+            <!-- Layers -->
+            <div class="max-w-4xl mx-auto space-y-4">
+                <!-- UI Layer -->
+                <div class="layer layer-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">🎨</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-cyan-400">表现层 (UI Layer)</h3>
+                                <p class="text-sm text-gray-400">Jetpack Compose 声明式 UI</p>
+                            </div>
+                        </div>
+                        <span class="tag tag-primary">用户界面</span>
+                        <button class="expand-btn" data-expand="layer-1">▼</button>
+                    </div>
+                    <div class="expandable-content" id="layer-1">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📱</div>
+                                <div class="text-sm font-medium">HomeScreen</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📋</div>
+                                <div class="text-sm font-medium">QuestionCard</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">🔍</div>
+                                <div class="text-sm font-medium">FilterSection</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">🔎</div>
+                                <div class="text-sm font-medium">SearchBar</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">✨</div>
+                                <div class="text-sm font-medium">WelcomeCard</div>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <pre>
+// UI 层职责
+- 展示用户界面
+- 响应用户交互
+- 观察 ViewModel 状态变化
+- 声明式 UI 构建
+
+// 核心组件
+HomeScreen.kt       - 主屏幕
+QuestionCard.kt     - 题目卡片
+FilterSection.kt    - 筛选器
+SearchBar.kt        - 搜索栏</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ViewModel Layer -->
+                <div class="layer layer-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">⚙️</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-orange-400">视图模型层 (ViewModel Layer)</h3>
+                                <p class="text-sm text-gray-400">状态管理与业务逻辑协调</p>
+                            </div>
+                        </div>
+                        <span class="tag tag-accent">状态管理</span>
+                        <button class="expand-btn" data-expand="layer-2">▼</button>
+                    </div>
+                    <div class="expandable-content" id="layer-2">
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📊</div>
+                                <div class="text-sm font-medium">HomeViewModel</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">🔄</div>
+                                <div class="text-sm font-medium">BaseViewModel</div>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <pre>
+// ViewModel 层职责
+- 管理 UI 状态 (StateFlow)
+- 协调业务 UseCase
+- 处理用户输入
+- 错误处理与日志
+
+// HomeUiState
+- allQuestions: List&lt;Question&gt;
+- filteredQuestions: List&lt;Question&gt;
+- selectedCategory: String?
+- selectedDifficulty: String?
+- searchQuery: String
+- isLoading: Boolean
+- error: String?</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Domain Layer -->
+                <div class="layer layer-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">💼</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-green-400">领域层 (Domain Layer)</h3>
+                                <p class="text-sm text-gray-400">核心业务逻辑与用例</p>
+                            </div>
+                        </div>
+                        <span class="tag tag-success">业务逻辑</span>
+                        <button class="expand-btn" data-expand="layer-3">▼</button>
+                    </div>
+                    <div class="expandable-content" id="layer-3">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📝</div>
+                                <div class="text-sm font-medium">UseCases</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">🏷️</div>
+                                <div class="text-sm font-medium">Result</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📊</div>
+                                <div class="text-sm font-medium">Difficulty</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">❓</div>
+                                <div class="text-sm font-medium">Question</div>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <pre>
+// 领域层职责
+- 封装核心业务逻辑
+- 提供 UseCase 接口
+- 定义领域实体
+- 不依赖 Android Framework
+
+// UseCases
+GetQuestionsUseCase        - 获取所有题目
+FilterQuestionsUseCase     - 筛选题目
+SearchQuestionsUseCase     - 搜索题目
+GetCategoriesUseCase       - 获取分类
+GetDifficultiesUseCase     - 获取难度
+GetQuestionCountUseCase    - 获取数量
+
+// 领域实体
+Question  - 题目实体
+Difficulty - 难度枚举
+Result&lt;T&gt; - 统一结果包装</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Layer -->
+                <div class="layer layer-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">🗄️</div>
+                            <div>
+                                <h3 class="text-xl font-bold text-purple-400">数据层 (Data Layer)</h3>
+                                <p class="text-sm text-gray-400">数据存储与获取</p>
+                            </div>
+                        </div>
+                        <span class="tag" style="background: rgba(168, 85, 247, 0.2); color: #A855F7;">数据访问</span>
+                        <button class="expand-btn" data-expand="layer-4">▼</button>
+                    </div>
+                    <div class="expandable-content" id="layer-4">
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">📚</div>
+                                <div class="text-sm font-medium">QuestionRepository</div>
+                            </div>
+                            <div class="glass-light rounded-lg p-3 text-center">
+                                <div class="text-2xl mb-1">💾</div>
+                                <div class="text-sm font-medium">RepositoryImpl</div>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <pre>
+// 数据层职责
+- 提供数据访问接口
+- 实现缓存策略
+- 数据持久化管理
+- 远程/本地数据协调
+
+// QuestionRepository 接口
+interface QuestionRepository {
+    fun getQuestions(): List&lt;Question&gt;
+    fun getQuestionsByCategory(category: String): List&lt;Question&gt;
+    fun getQuestionsByDifficulty(difficulty: String): List&lt;Question&gt;
+    fun getCategories(): List&lt;String&gt;
+    fun getDifficulties(): List&lt;String&gt;
+    fun searchQuestions(query: String): List&lt;Question&gt;
+    fun getQuestionCount(): Int
+}
+
+// 缓存机制
+categoryCache: Map&lt;String, List&lt;Question&gt;&gt;
+difficultyCache: Map&lt;String, List&lt;Question&gt;&gt;</pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Flow Section -->
-    <section id="flow" class="py-20 relative">
+    <section id="flow" class="py-20 relative bg-gradient-to-b from-transparent to-black/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <span class="tag tag-accent mb-4 inline-block">🔀 流程设计</span>
@@ -799,20 +1078,28 @@ graph TB
                 </p>
             </div>
 
-            <!-- Application Start Flow -->
-            <div class="mb-16">
+            <!-- Flow Tabs -->
+            <div class="tab-container">
+                <button class="tab active" data-tab="tab-flow-1">应用启动</button>
+                <button class="tab" data-tab="tab-flow-2">题目筛选</button>
+                <button class="tab" data-tab="tab-flow-3">题目作答</button>
+                <button class="tab" data-tab="tab-flow-4">搜索流程</button>
+                <button class="tab" data-tab="tab-flow-5">状态管理</button>
+            </div>
+
+            <div class="tab-content active" id="tab-flow-1">
                 <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-sm mr-3">1</span>
+                    <span class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-sm mr-3">🚀</span>
                     应用启动流程
                 </h3>
                 <div class="diagram-container">
                     <pre class="mermaid">
 flowchart TD
-    A([🚀 启动应用]) --> B[创建 Application]
+    A([🚀 用户点击图标]) --> B[创建 Application]
     B --> C[初始化 Hilt DI]
     C --> D[注入 SecurityManager]
     D --> E[执行安全检测]
-    E --> F{Root/模拟器?}
+    E --> F{Root / 模拟器?}
     F -->|是| G[⚠️ 记录警告日志]
     F -->|否| H[✅ 继续启动]
     G --> H
@@ -820,49 +1107,69 @@ flowchart TD
     I --> J[设置 FLAG_SECURE]
     J --> K[创建 Compose UI]
     K --> L[注入 HomeViewModel]
-    L --> M[调用 loadQuestions]
-    M --> N[初始化 UseCases]
-    N --> O[从 Repository 获取数据]
-    O --> P[更新 UI State]
-    P --> Q([✅ 显示主界面])
+    L --> M[初始化 HomeUiState]
+    M --> N[调用 loadQuestions]
+    N --> O[初始化 UseCases]
+    O --> P[获取所有题目]
+    P --> Q[获取分类列表]
+    Q --> R[获取难度列表]
+    R --> S[更新 uiState]
+    S --> T[显示主界面]
+    T --> U([✅ 启动完成])
                     </pre>
                 </div>
             </div>
 
-            <!-- Question Filtering Flow -->
-            <div class="mb-16">
+            <div class="tab-content" id="tab-flow-2">
                 <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-sm mr-3">2</span>
+                    <span class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-sm mr-3">🎯</span>
                     题目筛选流程
                 </h3>
                 <div class="diagram-container">
                     <pre class="mermaid">
 flowchart TD
-    A([👤 用户选择筛选条件]) --> B[selectCategory / selectDifficulty]
-    B --> C[更新 HomeUiState]
-    C --> D[触发 applyFilters]
-    D --> E[获取过滤条件]
-    E --> F{分类筛选?}
-    F -->|是| G[🔍 过滤指定分类]
-    F -->|否| I{难度筛选?}
-    G --> H
-    I -->|是| J[🎯 过滤指定难度]
-    J --> H
-    I -->|否| H{搜索查询?}
-    H -->|是| K[📝 模糊匹配]
-    H -->|否| L[📋 返回全部]
+    A([👤 用户选择筛选条件]) --> B{选择类型?}
+    B -->|分类| C[点击分类下拉框]
+    B -->|难度| D[点击难度下拉框]
+    B -->|重置| E[点击重置按钮]
+    
+    C --> F[选择分类选项]
+    D --> G[选择难度选项]
+    E --> H[清空所有筛选条件]
+    
+    F --> I[更新 selectedCategory]
+    G --> J[更新 selectedDifficulty]
+    H --> K[重置为初始状态]
+    
+    I --> L[触发 applyFilters]
+    J --> L
     K --> L
-    L --> M[更新 filteredQuestions]
-    M --> N[🔄 UI 重组]
-    N --> O([✅ 显示结果])
+    
+    L --> M[构建过滤条件]
+    M --> N{category 非空?}
+    N -->|是| O[过滤指定分类]
+    N -->|否| P{difficulty 非空?}
+    
+    O --> P
+    P -->|是| Q[过滤指定难度]
+    P -->|否| R{searchQuery 非空?}
+    
+    Q --> R
+    R -->|是| S[模糊匹配查询]
+    R -->|否| T[使用全部题目]
+    
+    S --> T
+    T --> U[更新 filteredQuestions]
+    U --> V[StateFlow 发射]
+    V --> W[Compose 重组]
+    W --> X([✅ 显示筛选结果])
                     </pre>
                 </div>
             </div>
 
-            <!-- Question Answering Flow -->
-            <div class="mb-16">
+            <div class="tab-content" id="tab-flow-3">
                 <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-sm mr-3">3</span>
+                    <span class="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-sm mr-3">📝</span>
                     题目作答流程
                 </h3>
                 <div class="diagram-container">
@@ -871,16 +1178,111 @@ flowchart TD
     A([👤 点击题目卡片]) --> B{卡片状态?}
     B -->|收起| C[📖 展开卡片]
     B -->|展开| D[📕 收起卡片]
-    C --> E[🔄 显示选项区域]
+    
+    C --> E[显示选项区域]
     D --> Z([✅ 结束])
-    E --> F([👤 选择答案])
-    F --> G[✨ 高亮选中选项]
-    G --> H[💡 显示解析]
-    H --> I{答案正确?}
-    I -->|✅| J[🟢 显示正确提示]
-    I -->|❌| K[🔴 显示错误+正确答案]
-    J --> L([📝 可继续选择])
-    K --> L
+    
+    E --> F([👤 选择选项])
+    F --> G{已选择答案?}
+    G -->|是| H[清除之前选择]
+    G -->|否| I[高亮选中选项]
+    
+    H --> I
+    I --> J{选项 == correctAnswer?}
+    J -->|是| K[✨ 显示绿色正确提示]
+    J -->|否| L[❌ 显示红色错误提示 + 正确答案]
+    
+    K --> M[📚 显示解析区域]
+    L --> M
+    
+    M --> N{继续选择?}
+    N -->|是| O[点击其他选项]
+    N -->|否| P[点击收起卡片]
+    
+    O --> G
+    P --> D
+                    </pre>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-flow-4">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-purple-500 flex items-center justify-center text-sm mr-3">🔎</span>
+                    搜索流程
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+flowchart TD
+    A([👤 在搜索框输入]) --> B[更新 searchQuery 状态]
+    B --> C{输入长度?}
+    C -->|0 字符| D[显示全部题目]
+    C -->|1+ 字符| E[触发搜索过滤]
+    
+    E --> F[获取当前所有题目]
+    F --> G[遍历每个题目]
+    G --> H{匹配位置?}
+    H -->|title 匹配| I[保留题目]
+    H -->|category 匹配| I
+    H -->|explanation 匹配| I
+    H -->|options 匹配| I
+    H -->|都不匹配| J[跳过题目]
+    
+    I --> K{还有题目?}
+    J --> K
+    K -->|是| G
+    K -->|否| L[收集匹配结果]
+    
+    D --> M[更新 filteredQuestions]
+    L --> M
+    
+    M --> N[重组 UI]
+    N --> O{匹配结果?}
+    O -->|空| P[显示空状态提示]
+    O -->|有结果| Q[显示搜索结果]
+    
+    P --> R([✅ 搜索完成])
+    Q --> R
+                    </pre>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-flow-5">
+                <h3 class="text-2xl font-bold mb-6 flex items-center">
+                    <span class="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center text-sm mr-3">🔄</span>
+                    状态管理流程
+                </h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Idle: 初始状态
+    
+    Idle --> Loading: loadQuestions()
+    Loading --> Success: 数据加载成功
+    Loading --> Error: 数据加载失败
+    
+    Success --> Filtering: 用户筛选
+    Filtering --> Success: 筛选完成
+    
+    Success --> Searching: 用户搜索
+    Searching --> Success: 搜索完成
+    
+    Error --> Loading: 重试
+    
+    state Loading {
+        [*] --> ShowSpinner
+        ShowSpinner --> [*]
+    }
+    
+    state Success {
+        [*] --> ShowQuestions
+        ShowQuestions --> ShowFiltered: 筛选应用
+        ShowQuestions --> ShowSearchResult: 搜索应用
+    }
+    
+    state Error {
+        [*] --> ShowError
+        ShowError --> [*]
+    }
                     </pre>
                 </div>
             </div>
@@ -898,78 +1300,92 @@ flowchart TD
                 </p>
             </div>
 
-            <!-- App Start Sequence -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-8 h-8 rounded-lg bg-purple-500 flex items-center justify-center text-sm mr-3">1</span>
-                    应用启动时序
-                </h3>
+            <!-- Sequence Tabs -->
+            <div class="tab-container">
+                <button class="tab active" data-tab="tab-seq-1">应用启动</button>
+                <button class="tab" data-tab="tab-seq-2">题目筛选</button>
+                <button class="tab" data-tab="tab-seq-3">数据缓存</button>
+                <button class="tab" data-tab="tab-seq-4">题目搜索</button>
+            </div>
+
+            <div class="tab-content active" id="tab-seq-1">
+                <h3 class="text-2xl font-bold mb-6">应用启动时序</h3>
                 <div class="diagram-container">
                     <pre class="mermaid">
 sequenceDiagram
+    autonumber
+    participant User as 👤 用户
     participant App as Application
+    participant Sec as SecurityManager
     participant Main as MainActivity
+    participant UI as Compose UI
     participant VM as HomeViewModel
     participant UC as UseCases
     participant Repo as QuestionRepository
-    participant Sec as SecurityManager
+    participant Cache as Memory Cache
     
-    App->>Sec: 执行安全检测
+    User->>App: 点击应用图标
+    App->>App: onCreate()
+    App->>Sec: init SecurityManager
+    Sec->>Sec: isRooted()
+    Sec->>Sec: isEmulator()
+    Sec->>Sec: isDebuggable()
     Sec-->>App: 返回安全状态
-    
-    App->>Main: onCreate()
+    App->>Main: 创建 MainActivity
     Main->>Main: secureWindow()
-    Main->>Main: setContent()
-    
-    Main->>VM: 注入 HomeViewModel
-    VM->>VM: init { loadQuestions() }
-    
+    Main->>UI: setContent()
+    UI->>VM: 注入 HomeViewModel
+    VM->>VM: 初始化 HomeUiState
+    VM->>VM: loadQuestions()
     VM->>UC: getQuestionsUseCase()
     UC->>Repo: getQuestions()
+    Repo->>Repo: generateAllQuestions()
+    Repo->>Cache: 缓存 categoryCache
+    Repo->>Cache: 缓存 difficultyCache
     Repo-->>UC: List&lt;Question&gt;
     
     VM->>UC: getCategoriesUseCase()
     UC->>Repo: getCategories()
+    Repo->>Cache: 读取 categoryCache
+    Cache-->>Repo: List&lt;String&gt;
     Repo-->>UC: List&lt;String&gt;
     
     VM->>UC: getDifficultiesUseCase()
     UC->>Repo: getDifficulties()
+    Repo->>Cache: 读取 difficultyCache
+    Cache-->>Repo: List&lt;String&gt;
     Repo-->>UC: List&lt;String&gt;
     
-    VM->>UC: getQuestionCountUseCase()
-    UC->>Repo: getQuestionCount()
-    Repo-->>UC: Int
-    
-    VM-->>Main: 更新 uiState
-    Main-->>App: 重组 UI
+    VM->>VM: 更新 uiState
+    VM-->>UI: StateFlow 发射
+    UI->>UI: Compose 重组
+    UI-->>User: 显示主界面
                     </pre>
                 </div>
             </div>
 
-            <!-- Filtering Sequence -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-sm mr-3">2</span>
-                    题目筛选时序
-                </h3>
+            <div class="tab-content" id="tab-seq-2">
+                <h3 class="text-2xl font-bold mb-6">题目筛选时序</h3>
                 <div class="diagram-container">
                     <pre class="mermaid">
 sequenceDiagram
+    autonumber
     participant User as 👤 用户
     participant UI as HomeScreen
     participant VM as HomeViewModel
     participant UC as FilterQuestionsUseCase
     participant Repo as QuestionRepository
+    participant Cache as Memory Cache
     
     User->>UI: 选择分类/难度
     UI->>VM: selectCategory(category)
-    
     VM->>VM: 更新 selectedCategory
     VM->>VM: applyFilters()
-    
     VM->>UC: invoke(category, difficulty, query)
     
     UC->>Repo: getQuestions()
+    Repo->>Cache: 读取 allQuestions
+    Cache-->>Repo: List&lt;Question&gt;
     Repo-->>UC: List&lt;Question&gt;
     
     alt 分类过滤
@@ -980,49 +1396,88 @@ sequenceDiagram
         UC->>UC: filter by difficulty
     end
     
-    alt 搜索过滤
-        UC->>UC: filter by search query
+    alt 搜索查询
+        UC->>UC: filter by searchQuery
     end
     
     UC-->>VM: List&lt;Question&gt;
-    VM-->>VM: 更新 filteredQuestions
+    VM->>VM: 更新 filteredQuestions
     VM-->>UI: StateFlow 更新
-    UI-->>User: 重组 LazyColumn
+    UI->>UI: 重组 LazyColumn
+    UI-->>User: 显示筛选结果
                     </pre>
                 </div>
             </div>
 
-            <!-- Data Caching Sequence -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-sm mr-3">3</span>
-                    数据缓存时序
-                </h3>
+            <div class="tab-content" id="tab-seq-3">
+                <h3 class="text-2xl font-bold mb-6">数据缓存时序</h3>
                 <div class="diagram-container">
                     <pre class="mermaid">
 sequenceDiagram
+    autonumber
     participant VM as HomeViewModel
     participant Repo as QuestionRepositoryImpl
     participant Cache as Memory Cache
     
-    Note over Repo: 首次调用 getQuestions()
-    VM->>Repo: getQuestions()
-    Repo->>Repo: generateAllQuestions()
-    Repo->>Cache: 缓存到 categoryCache
-    Repo->>Cache: 缓存到 difficultyCache
-    Repo-->>VM: List&lt;Question&gt;
-    
-    Note over Repo: 后续调用 getQuestionsByCategory()
+    Note over Repo: 首次调用
     VM->>Repo: getQuestionsByCategory("算法")
-    Repo->>Cache: 读取 categoryCache
-    Cache-->>Repo: List&lt;Question&gt;
-    Repo-->>VM: List&lt;Question&gt;
+    Repo->>Repo: 检查 categoryCache
+    Repo->>Cache: categoryCache 不存在
+    Cache-->>Repo: null
+    Repo->>Repo: generateAllQuestions()
+    Repo->>Repo: 构建 categoryCache
+    Repo->>Cache: 缓存 Map<String, List<Question>>
+    Repo-->>VM: List<Question>
     
-    Note over Repo: 无缓存穿透
+    Note over Repo: 第二次调用 (缓存命中)
+    VM->>Repo: getQuestionsByCategory("算法")
+    Repo->>Repo: 检查 categoryCache
+    Repo->>Cache: categoryCache 存在
+    Cache-->>Repo: List<Question>
+    Repo-->>VM: List<Question>
+    
+    Note over Repo: 难度查询
     VM->>Repo: getQuestionsByDifficulty("HARD")
     Repo->>Cache: 读取 difficultyCache
-    Cache-->>Repo: List&lt;Question&gt;
-    Repo-->>VM: List&lt;Question&gt;
+    Cache-->>Repo: List<Question>
+    Repo-->>VM: List<Question>
+                    </pre>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-seq-4">
+                <h3 class="text-2xl font-bold mb-6">题目搜索时序</h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant User as 👤 用户
+    participant UI as HomeScreen
+    participant VM as HomeViewModel
+    participant UC as SearchQuestionsUseCase
+    participant Repo as QuestionRepository
+    
+    User->>UI: 在搜索框输入
+    UI->>VM: updateSearchQuery(query)
+    VM->>VM: 更新 searchQuery
+    VM->>VM: applyFilters()
+    VM->>UC: invoke(query)
+    UC->>Repo: searchQuestions(query)
+    Repo->>Repo: 获取所有题目
+    
+    loop 遍历每个题目
+        Repo->>Repo: 检查 title
+        Repo->>Repo: 检查 category
+        Repo->>Repo: 检查 explanation
+        Repo->>Repo: 检查 options
+    end
+    
+    Repo-->>UC: List<Question>
+    UC-->>VM: List<Question>
+    VM->>VM: 更新 filteredQuestions
+    VM-->>UI: StateFlow 发射
+    UI->>UI: 重组显示结果
+    UI-->>User: 显示搜索结果
                     </pre>
                 </div>
             </div>
@@ -1030,7 +1485,7 @@ sequenceDiagram
     </section>
 
     <!-- Modules Section -->
-    <section id="modules" class="py-20 relative">
+    <section id="modules" class="py-20 relative bg-gradient-to-b from-transparent to-black/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <span class="tag tag-primary mb-4 inline-block">📦 模块设计</span>
@@ -1040,14 +1495,20 @@ sequenceDiagram
                 </p>
             </div>
 
-            <!-- Package Structure -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-bold mb-6">包结构图</h3>
+            <!-- Modules Tabs -->
+            <div class="tab-container">
+                <button class="tab active" data-tab="tab-mod-1">包结构</button>
+                <button class="tab" data-tab="tab-mod-2">类关系</button>
+                <button class="tab" data-tab="tab-mod-3">依赖图</button>
+                <button class="tab" data-tab="tab-mod-4">代码示例</button>
+            </div>
+
+            <div class="tab-content active" id="tab-mod-1">
                 <div class="diagram-container">
                     <pre class="mermaid">
-graph TD
+graph TB
     subgraph "com.interviewquiz.app"
-        A[Root]
+        A[Root<br/>InterviewQuizApplication]
         B[ui/]
         C[data/]
         D[domain/]
@@ -1081,6 +1542,9 @@ graph TD
         D2 --> D21[GetQuestionsUseCase.kt]
         D2 --> D22[FilterQuestionsUseCase.kt]
         D2 --> D23[SearchQuestionsUseCase.kt]
+        D2 --> D24[GetCategoriesUseCase.kt]
+        D2 --> D25[GetDifficultiesUseCase.kt]
+        D2 --> D26[GetQuestionCountUseCase.kt]
         
         E --> E1[AppModule.kt]
         E --> E2[SecurityModule.kt]
@@ -1092,113 +1556,278 @@ graph TD
     end
                     </pre>
                 </div>
+                <div class="mt-6 card p-6">
+                    <h3 class="text-xl font-bold mb-4">📂 完整包结构</h3>
+                    <div class="code-block">
+                        <pre>
+com.interviewquiz.app
+├── ui/
+│   ├── base/
+│   │   └── BaseViewModel.kt
+│   ├── screens/
+│   │   ├── HomeScreen.kt
+│   │   └── HomeViewModel.kt
+│   └── theme/
+│       ├── Color.kt
+│       ├── Theme.kt
+│       └── Type.kt
+├── data/
+│   ├── Question.kt
+│   ├── QuestionRepository.kt
+│   └── QuestionRepositoryImpl.kt
+├── domain/
+│   ├── model/
+│   │   ├── Result.kt
+│   │   └── Difficulty.kt
+│   └── usecase/
+│       ├── GetQuestionsUseCase.kt
+│       ├── FilterQuestionsUseCase.kt
+│       ├── SearchQuestionsUseCase.kt
+│       ├── GetCategoriesUseCase.kt
+│       ├── GetDifficultiesUseCase.kt
+│       └── GetQuestionCountUseCase.kt
+├── di/
+│   ├── AppModule.kt
+│   └── SecurityModule.kt
+├── security/
+│   └── SecurityManager.kt
+├── util/
+│   ├── AppLogger.kt
+│   └── AppException.kt
+├── InterviewQuizApplication.kt
+└── MainActivity.kt</pre>
+                    </div>
+                </div>
             </div>
 
-            <!-- Class Relationships -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-bold mb-6">类关系图</h3>
+            <div class="tab-content" id="tab-mod-2">
                 <div class="diagram-container">
                     <pre class="mermaid">
 classDiagram
-    class HomeScreen {
-        +uiState: HomeUiState
-        +onSearch(query: String)
-        +onFilter(category: String?, difficulty: String?)
-    }
-    
-    class HomeViewModel {
-        +uiState: StateFlow~HomeUiState~
-        +loadQuestions()
-        +selectCategory(category: String?)
-        +selectDifficulty(difficulty: String?)
-    }
-    
+    %% ViewModel Hierarchy
     class BaseViewModel {
         <<abstract>>
         +exceptionHandler: CoroutineExceptionHandler
-        +launchSafe(block: suspend () -> Unit)
-        +handleException(exception: Throwable)
+        +launchSafe(block)
+        +handleException(exception)
     }
+    class HomeViewModel {
+        +uiState: StateFlow~HomeUiState~
+        +loadQuestions()
+        +selectCategory(category)
+        +selectDifficulty(difficulty)
+        +updateSearchQuery(query)
+        +resetFilters()
+        +getCategories()
+        +getDifficulties()
+        +clearError()
+    }
+    BaseViewModel <|-- HomeViewModel
     
+    %% UI State
+    class HomeUiState {
+        +allQuestions: List~Question~
+        +filteredQuestions: List~Question~
+        +selectedCategory: String?
+        +selectedDifficulty: String?
+        +showFilters: Boolean
+        +searchQuery: String
+        +isLoading: Boolean
+        +error: String?
+        +categories: List~String~
+        +difficulties: List~String~
+        +totalQuestionCount: Int
+    }
+    HomeViewModel *-- HomeUiState
+    
+    %% Repository
     class QuestionRepository {
         <<interface>>
         +getQuestions(): List~Question~
-        +getQuestionsByCategory(category: String): List~Question~
+        +getQuestionsByCategory(category): List~Question~
+        +getQuestionsByDifficulty(difficulty): List~Question~
         +getCategories(): List~String~
-        +searchQuestions(query: String): List~Question~
+        +getDifficulties(): List~String~
+        +getQuestionCount(): Int
+        +searchQuestions(query): List~Question~
+        +getQuestionsPaginated(page, size): List~Question~
     }
-    
     class QuestionRepositoryImpl {
         -allQuestions: List~Question~
         -categoryCache: Map~String, List~Question~~
+        -difficultyCache: Map~String, List~Question~~
         +getQuestions(): List~Question~
+        +getQuestionsByCategory(category): List~Question~
+        +getQuestionsByDifficulty(difficulty): List~Question~
+        +getCategories(): List~String~
+        +getDifficulties(): List~String~
+        +searchQuestions(query): List~Question~
     }
+    QuestionRepository <|.. QuestionRepositoryImpl
     
+    %% Domain Models
     class Question {
         +id: Int
         +title: String
         +options: List~String~
         +correctAnswer: Int
+        +explanation: String
+        +category: String
+        +difficulty: String
         +getDifficultyLevel(): Difficulty
+        +isCorrectAnswer(index): Boolean
+        +getOptionLetter(index): Char
     }
-    
     class Difficulty {
         <<enumeration>>
         EASY
         MEDIUM
         HARD
+        +displayName: String
+        +fromString(value): Difficulty?
     }
-    
     class Result~T~ {
         <<sealed>>
         Success~data: T~
-        Error~exception: Throwable~
+        Error~exception: Throwable, message: String?~
         Loading
+        +isSuccess: Boolean
+        +getOrNull(): T?
+        +map(transform): Result~R~
     }
-    
-    HomeScreen --> HomeViewModel
-    HomeViewModel --|> BaseViewModel
-    HomeViewModel --> QuestionRepository
-    QuestionRepository <|.. QuestionRepositoryImpl
-    QuestionRepositoryImpl --> Question
     Question --> Difficulty
+    
+    %% UseCases
+    class GetQuestionsUseCase {
+        -repository: QuestionRepository
+        +invoke(): List~Question~
+    }
+    class FilterQuestionsUseCase {
+        -repository: QuestionRepository
+        +invoke(category, difficulty, query): List~Question~
+    }
+    class SearchQuestionsUseCase {
+        -repository: QuestionRepository
+        +invoke(query): List~Question~
+    }
                     </pre>
                 </div>
             </div>
 
-            <!-- Dependency Graph -->
-            <div class="mb-16">
-                <h3 class="text-2xl font-bold mb-6">模块依赖图</h3>
+            <div class="tab-content" id="tab-mod-3">
                 <div class="diagram-container">
                     <pre class="mermaid">
-graph LR
-    subgraph "表现层"
+graph TB
+    subgraph "依赖关系"
         A[HomeScreen] --> B[HomeViewModel]
-    end
-    
-    subgraph "领域层"
-        B --> C[GetQuestionsUseCase]
-        B --> D[FilterQuestionsUseCase]
-        B --> E[SearchQuestionsUseCase]
-    end
-    
-    subgraph "数据层"
-        C --> F[QuestionRepository]
-        D --> F
-        E --> F
-        F --> G[QuestionRepositoryImpl]
-        G --> H[Question]
-    end
-    
-    subgraph "基础设施"
-        I[Hilt DI] --> C
-        I --> D
-        I --> E
-        I --> F
-        I --> B
-        J[SecurityManager] --> I
+        B --> C[BaseViewModel]
+        B --> D[GetQuestionsUseCase]
+        B --> E[FilterQuestionsUseCase]
+        B --> F[SearchQuestionsUseCase]
+        B --> G[GetCategoriesUseCase]
+        B --> H[GetDifficultiesUseCase]
+        D --> I[QuestionRepository]
+        E --> I
+        F --> I
+        G --> I
+        H --> I
+        I --> J[QuestionRepositoryImpl]
+        J --> K[Question]
+        K --> L[Difficulty]
+        C --> M[AppLogger]
+        C --> N[AppException]
+        O[Hilt DI] --> B
+        O --> D
+        O --> E
+        O --> F
+        O --> G
+        O --> H
+        O --> I
+        P[SecurityManager] --> O
     end
                     </pre>
+                </div>
+            </div>
+
+            <div class="tab-content" id="tab-mod-4">
+                <h3 class="text-xl font-bold mb-4">📝 关键代码示例</h3>
+                
+                <div class="code-block mb-6">
+                    <pre>
+// HomeViewModel - 核心状态管理
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val getQuestionsUseCase: GetQuestionsUseCase,
+    private val filterQuestionsUseCase: FilterQuestionsUseCase,
+    private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val getDifficultiesUseCase: GetDifficultiesUseCase,
+    private val getQuestionCountUseCase: GetQuestionCountUseCase
+) : BaseViewModel() {
+    
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow&lt;HomeUiState&gt; = _uiState.asStateFlow()
+    
+    init {
+        loadQuestions()
+    }
+    
+    fun updateSearchQuery(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+        applyFilters()
+    }
+    
+    fun selectCategory(category: String?) {
+        _uiState.value = _uiState.value.copy(selectedCategory = category)
+        applyFilters()
+    }
+    
+    private fun applyFilters() {
+        val filtered = filterQuestionsUseCase(
+            category = _uiState.value.selectedCategory,
+            difficulty = _uiState.value.selectedDifficulty,
+            query = _uiState.value.searchQuery
+        )
+        _uiState.value = _uiState.value.copy(filteredQuestions = filtered)
+    }
+}
+</pre>
+                </div>
+
+                <div class="code-block">
+                    <pre>
+// FilterQuestionsUseCase - 业务用例
+class FilterQuestionsUseCase @Inject constructor(
+    private val repository: QuestionRepository
+) {
+    operator fun invoke(
+        category: String? = null,
+        difficulty: String? = null,
+        query: String? = null
+    ): List&lt;Question&gt; {
+        var questions = repository.getQuestions()
+        
+        category?.let {
+            questions = questions.filter { it.category == category }
+        }
+        
+        difficulty?.let {
+            questions = questions.filter { it.difficulty == difficulty }
+        }
+        
+        query?.takeIf { it.isNotBlank() }?.let {
+            val lowerQuery = it.lowercase()
+            questions = questions.filter { q ->
+                q.title.lowercase().contains(lowerQuery) ||
+                q.category.lowercase().contains(lowerQuery) ||
+                q.explanation.lowercase().contains(lowerQuery) ||
+                q.options.any { o -> o.lowercase().contains(lowerQuery) }
+            }
+        }
+        
+        return questions
+    }
+}
+</pre>
                 </div>
             </div>
         </div>
@@ -1208,115 +1837,66 @@ graph LR
     <section id="tech" class="py-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <span class="tag tag-accent mb-4 inline-block">🛠️ 技术栈</span>
-                <h2 class="section-title">技术选型</h2>
+                <span class="tag tag-primary mb-4 inline-block">🛠️ 技术栈</span>
+                <h2 class="section-title">技术选型与依赖</h2>
                 <p class="text-gray-400 max-w-2xl mx-auto">
-                    使用业界主流技术栈，确保代码质量和可维护性
+                    采用现代化技术栈，保证应用性能和可维护性
                 </p>
             </div>
 
-            <!-- Tech Stack Grid -->
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-                <div class="card p-6">
+                <div class="card p-8">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mr-4">
                             <span class="text-2xl">🤖</span>
                         </div>
                         <div>
-                            <h3 class="font-bold">Android SDK</h3>
-                            <p class="text-sm text-gray-400">API 34</p>
+                            <h3 class="font-bold">Android & Kotlin</h3>
+                            <p class="text-sm text-gray-400">API 34 | Kotlin 2.0</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <span class="tag tag-primary">Kotlin 2.0</span>
-                        <span class="tag tag-accent">Java 17</span>
+                        <span class="tag tag-primary">Kotlin KSP</span>
+                        <span class="tag tag-success">Kotlin DSL</span>
+                        <span class="tag tag-accent">Coroutines</span>
                     </div>
                 </div>
 
-                <div class="card p-6">
+                <div class="card p-8">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center mr-4">
                             <span class="text-2xl">🎨</span>
                         </div>
                         <div>
-                            <h3 class="font-bold">UI Framework</h3>
-                            <p class="text-sm text-gray-400">Jetpack Compose</p>
+                            <h3 class="font-bold">Jetpack Compose</h3>
+                            <p class="text-sm text-gray-400">Material Design 3</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <span class="tag tag-primary">Material 3</span>
-                        <span class="tag tag-success">声明式 UI</span>
+                        <span class="tag tag-primary">Compose BOM</span>
+                        <span class="tag tag-success">StateFlow</span>
                     </div>
                 </div>
 
-                <div class="card p-6">
+                <div class="card p-8">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mr-4">
                             <span class="text-2xl">💉</span>
                         </div>
                         <div>
-                            <h3 class="font-bold">Dependency Injection</h3>
-                            <p class="text-sm text-gray-400">Hilt 2.50</p>
+                            <h3 class="font-bold">Hilt DI</h3>
+                            <p class="text-sm text-gray-400">v2.50</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <span class="tag tag-primary">KSP</span>
-                        <span class="tag tag-accent">Singleton</span>
-                    </div>
-                </div>
-
-                <div class="card p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mr-4">
-                            <span class="text-2xl">⚡</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold">Async Operations</h3>
-                            <p class="text-sm text-gray-400">Kotlin Coroutines</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tag tag-primary">StateFlow</span>
-                        <span class="tag tag-success">Flow</span>
-                    </div>
-                </div>
-
-                <div class="card p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mr-4">
-                            <span class="text-2xl">🔄</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold">Build System</h3>
-                            <p class="text-sm text-gray-400">Gradle 8.2</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tag tag-primary">Kotlin DSL</span>
-                        <span class="tag tag-accent">KTS</span>
-                    </div>
-                </div>
-
-                <div class="card p-6">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-500 flex items-center justify-center mr-4">
-                            <span class="text-2xl">🧪</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold">Testing</h3>
-                            <p class="text-sm text-gray-400">JUnit + MockK</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="tag tag-primary">Unit Test</span>
-                        <span class="tag tag-success">41 Cases</span>
+                        <span class="tag tag-success">Singleton Scope</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Dependency Table -->
             <div class="card p-8">
-                <h3 class="text-2xl font-bold mb-6">核心依赖版本</h3>
+                <h3 class="text-2xl font-bold mb-6">📋 依赖版本管理</h3>
                 <div class="overflow-x-auto">
                     <table class="data-table">
                         <thead>
@@ -1329,43 +1909,43 @@ graph LR
                         </thead>
                         <tbody>
                             <tr>
-                                <td>androidx.core</td>
+                                <td>androidx.core:core-ktx</td>
                                 <td><code class="text-cyan-400">1.12.0</code></td>
-                                <td>核心扩展</td>
+                                <td>核心 KTX 扩展</td>
                                 <td><span class="tag tag-primary">必需</span></td>
                             </tr>
                             <tr>
-                                <td>lifecycle</td>
+                                <td>androidx.lifecycle:lifecycle-runtime-ktx</td>
                                 <td><code class="text-cyan-400">2.7.0</code></td>
                                 <td>生命周期管理</td>
                                 <td><span class="tag tag-primary">必需</span></td>
                             </tr>
                             <tr>
-                                <td>hilt</td>
+                                <td>androidx.activity:activity-compose</td>
+                                <td><code class="text-cyan-400">1.8.2</code></td>
+                                <td>Activity Compose 集成</td>
+                                <td><span class="tag tag-primary">必需</span></td>
+                            </tr>
+                            <tr>
+                                <td>androidx.navigation:navigation-compose</td>
+                                <td><code class="text-cyan-400">2.7.6</code></td>
+                                <td>导航组件</td>
+                                <td><span class="tag tag-accent">推荐</span></td>
+                            </tr>
+                            <tr>
+                                <td>com.google.dagger:hilt-android</td>
                                 <td><code class="text-cyan-400">2.50</code></td>
                                 <td>依赖注入</td>
                                 <td><span class="tag tag-primary">必需</span></td>
                             </tr>
                             <tr>
-                                <td>compose-bom</td>
-                                <td><code class="text-cyan-400">2024.02.00</code></td>
-                                <td>Compose BOM</td>
-                                <td><span class="tag tag-primary">必需</span></td>
-                            </tr>
-                            <tr>
-                                <td>material3</td>
-                                <td><code class="text-cyan-400">最新</code></td>
-                                <td>Material Design 3</td>
-                                <td><span class="tag tag-accent">推荐</span></td>
-                            </tr>
-                            <tr>
-                                <td>coroutines-test</td>
+                                <td>org.jetbrains.kotlinx:kotlinx-coroutines-test</td>
                                 <td><code class="text-cyan-400">1.7.3</code></td>
                                 <td>协程测试</td>
                                 <td><span class="tag tag-success">测试</span></td>
                             </tr>
                             <tr>
-                                <td>mockk</td>
+                                <td>io.mockk:mockk</td>
                                 <td><code class="text-cyan-400">1.13.9</code></td>
                                 <td>Mock 框架</td>
                                 <td><span class="tag tag-success">测试</span></td>
@@ -1377,216 +1957,283 @@ graph LR
         </div>
     </section>
 
-    <!-- Timeline Section -->
-    <section class="py-20 relative">
+    <!-- Security Section -->
+    <section id="security" class="py-20 relative bg-gradient-to-b from-transparent to-black/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <span class="tag tag-primary mb-4 inline-block">📅 发展历程</span>
-                <h2 class="section-title">版本演进</h2>
+                <span class="tag tag-primary mb-4 inline-block">🛡️ 安全设计</span>
+                <h2 class="section-title">安全架构与防护</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    多层安全防护机制，保障应用和用户数据安全
+                </p>
             </div>
 
-            <div class="max-w-3xl mx-auto">
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="glass p-6 rounded-xl">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-2xl font-bold text-cyan-400">v1.0.0</span>
-                                <span class="text-sm text-gray-400">2026-05-16</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2">初始版本发布</h3>
-                            <p class="text-gray-400 mb-4">
-                                完成基础刷题功能，包含 120 道面试题目，支持分类和难度筛选
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="tag tag-primary">基础功能</span>
-                                <span class="tag tag-accent">MVP</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🔒</div>
+                    <h3 class="text-xl font-bold mb-4">应用层安全</h3>
+                    <ul class="text-gray-400 text-sm space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">✓</span>
+                            <span>FLAG_SECURE 防止屏幕截图和录屏</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">✓</span>
+                            <span>禁止应用数据备份 allowBackup=false</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-400 mr-2">✓</span>
+                            <span>网络安全配置强制 HTTPS</span>
+                        </li>
+                    </ul>
+                </div>
 
-                    <div class="timeline-item">
-                        <div class="glass p-6 rounded-xl">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-2xl font-bold text-orange-400">v1.1.0</span>
-                                <span class="text-sm text-gray-400">2026-05-17</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2">深度优化版本</h3>
-                            <p class="text-gray-400 mb-4">
-                                完成 11 个维度的深度优化，包括安全性、性能、架构重构等
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="tag tag-primary">11 优化维度</span>
-                                <span class="tag tag-accent">50+ 问题修复</span>
-                                <span class="tag tag-success">41 测试用例</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🕵️</div>
+                    <h3 class="text-xl font-bold mb-4">环境检测</h3>
+                    <ul class="text-gray-400 text-sm space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-orange-400 mr-2">✓</span>
+                            <span>Root 设备检测</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-400 mr-2">✓</span>
+                            <span>模拟器环境检测</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-orange-400 mr-2">✓</span>
+                            <span>调试模式检测</span>
+                        </li>
+                    </ul>
+                </div>
 
-                    <div class="timeline-item">
-                        <div class="glass p-6 rounded-xl">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-2xl font-bold text-green-400">v2.0.0</span>
-                                <span class="text-sm text-gray-400">规划中</span>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2">功能增强版本</h3>
-                            <p class="text-gray-400 mb-4">
-                                计划添加收藏功能、学习进度跟踪、数据分析等高级功能
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="tag tag-primary">功能增强</span>
-                                <span class="tag tag-accent">规划中</span>
-                            </div>
-                        </div>
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">🔐</div>
+                    <h3 class="text-xl font-bold mb-4">代码防护</h3>
+                    <ul class="text-gray-400 text-sm space-y-3">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>ProGuard/R8 代码混淆</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>资源文件优化与压缩</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-2">✓</span>
+                            <span>敏感日志编译时移除</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card p-8">
+                    <div class="text-4xl mb-4">📋</div>
+                    <h3 class="text-xl font-bold mb-4">安全架构</h3>
+                    <div class="diagram-container" style="margin: 0;">
+                        <pre class="mermaid">
+flowchart LR
+    subgraph "应用层"
+        A[FLAG_SECURE]
+        B[禁止备份]
+    end
+    
+    subgraph "检测层"
+        C[Root 检测]
+        D[模拟器检测]
+        E[调试检测]
+    end
+    
+    subgraph "混淆层"
+        F[代码混淆]
+        G[日志移除]
+    end
+    
+    subgraph "网络层"
+        H[网络安全配置]
+        I[HTTPS 强制]
+    end
+    
+    A --> C
+    B --> C
+    C --> F
+    F --> H
+                        </pre>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="py-12 border-t border-gray-800">
+    <!-- CI/CD Section -->
+    <section id="ci-cd" class="py-20 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div class="flex items-center space-x-3 mb-4 md:mb-0">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">IQ</span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold">InterviewQuiz</h3>
-                        <p class="text-xs text-gray-400">技术架构可视化平台</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="https://github.com/17683995446/InterviewQuiz" target="_blank" class="text-gray-400 hover:text-cyan-400 transition-colors">
-                        GitHub
-                    </a>
-                    <span class="text-gray-600">|</span>
-                    <span class="text-gray-400 text-sm">v1.1.0</span>
+            <div class="text-center mb-16">
+                <span class="tag tag-success mb-4 inline-block">🚀 CI/CD</span>
+                <h2 class="section-title">自动化构建与部署</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    GitHub Actions 驱动的完整 CI/CD 流水线
+                </p>
+            </div>
+
+            <div class="card p-8 mb-8">
+                <h3 class="text-xl font-bold mb-6">🔄 CI/CD 流水线</h3>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+graph TD
+    A[代码推送] --> B[触发 GitHub Actions]
+    B --> C[检出代码]
+    C --> D[设置 Java 17]
+    D --> E[设置 Gradle 缓存]
+    E --> F[Gradle 依赖下载]
+    F --> G{构建检查}
+    G -->|成功| H[运行单元测试]
+    G -->|失败| I[发送失败通知]
+    H --> J{测试结果}
+    J -->|通过| K[构建 Debug APK]
+    J -->|失败| I
+    K --> L[构建 Release APK]
+    L --> M[上传构建产物]
+    M --> N[清理与完成]
+    style I fill:#ef4444
+    style N fill:#22c55e
+                    </pre>
                 </div>
             </div>
-            <div class="text-center mt-8 text-gray-500 text-sm">
-                Built with ❤️ using Kotlin, Jetpack Compose & Mermaid.js
+
+            <div class="card p-8">
+                <h3 class="text-xl font-bold mb-6">📝 GitHub Actions 配置</h3>
+                <div class="code-block">
+                    <pre>
+name: Android Build
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build with Gradle
+        run: ./gradlew build
+        
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 border-t border-white/10 bg-black/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center mr-3">
+                        <span class="text-2xl">📚</span>
+                    </div>
+                    <span class="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                        InterviewQuiz
+                    </span>
+                </div>
+                <p class="text-gray-400 mb-6 max-w-md mx-auto">
+                    Android 人工智能/计算机岗位面试刷题应用 - 使用 Kotlin 2.0 + Jetpack Compose + Hilt + Clean Architecture 构建
+                </p>
+                <div class="flex justify-center space-x-6 text-sm text-gray-500">
+                    <a href="#overview" class="hover:text-cyan-400 transition-colors">概览</a>
+                    <a href="#architecture" class="hover:text-cyan-400 transition-colors">架构</a>
+                    <a href="#layers" class="hover:text-cyan-400 transition-colors">分层</a>
+                    <a href="#modules" class="hover:text-cyan-400 transition-colors">模块</a>
+                    <a href="#tech" class="hover:text-cyan-400 transition-colors">技术栈</a>
+                </div>
+                <div class="mt-8 pt-8 border-t border-white/10 text-gray-500 text-sm">
+                    <p>© 2025 InterviewQuiz. All rights reserved.</p>
+                </div>
             </div>
         </div>
     </footer>
 
-    <script>
-        // Initialize Mermaid
+    <!-- Mermaid and Tailwind -->
+    &lt;script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"&gt;&lt;/script&gt;
+    &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+    &lt;script&gt;
         mermaid.initialize({
             startOnLoad: true,
             theme: 'dark',
             themeVariables: {
-                primaryColor: '#1E3A5F',
-                primaryTextColor: '#F9FAFB',
-                primaryBorderColor: '#00D4FF',
-                lineColor: '#00D4FF',
-                secondaryColor: '#111827',
-                tertiaryColor: '#0D1117',
-                background: '#0A0F1C',
-                mainBkg: '#111827',
-                nodeBorder: '#00D4FF',
-                clusterBkg: 'rgba(0, 212, 255, 0.1)',
-                clusterBorder: 'rgba(0, 212, 255, 0.3)',
-                titleColor: '#F9FAFB',
-                edgeLabelBackground: '#111827'
-            },
-            flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true,
-                curve: 'basis'
-            },
-            sequence: {
-                useMaxWidth: true,
-                diagramMarginX: 50,
-                diagramMarginY: 10,
-                actorMargin: 50,
-                width: 180,
-                height: 65,
-                boxMargin: 10,
-                boxTextMargin: 5,
-                noteMargin: 10,
-                messageMargin: 40,
-                mirrorActors: true,
-                bottomMarginAdj: 1,
-                rightAngles: false,
-                showSequenceNumbers: false
+                primaryColor: '#1e293b',
+                primaryTextColor: '#e2e8f0',
+                primaryBorderColor: '#334155',
+                lineColor: '#475569',
+                secondaryColor: '#334155',
+                tertiaryColor: '#1e293b'
             }
         });
 
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        // Tab switching
+        document.querySelectorAll('[data-tab]').forEach(button =&gt; {
+            button.addEventListener('click', () =&gt; {
+                const tabGroup = button.getAttribute('data-tab-group');
+                const tabId = button.getAttribute('data-tab');
+                
+                // Remove active from all buttons in group
+                document.querySelectorAll(`[data-tab-group="${tabGroup}"]`).forEach(btn =&gt; {
+                    btn.classList.remove('active');
+                });
+                
+                // Hide all content in group
+                document.querySelectorAll(`[data-tab-group-content="${tabGroup}"]`).forEach(content =&gt; {
+                    content.classList.add('hidden');
+                });
+                
+                // Show selected content
+                button.classList.add('active');
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // Expandable sections
+        document.querySelectorAll('.expand-btn').forEach(button =&gt; {
+            button.addEventListener('click', () =&gt; {
+                const content = button.nextElementSibling;
+                content.classList.toggle('hidden');
+                button.querySelector('.expand-icon').textContent = 
+                    content.classList.contains('hidden') ? '+' : '−';
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor =&gt; {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
         });
 
-        // Active navigation highlighting
-        const sections = document.querySelectorAll('section[id]');
-        const navItems = document.querySelectorAll('.nav-item');
-
-        window.addEventListener('scroll', () => {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (scrollY >= sectionTop - 100) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('href') === `#${current}`) {
-                    item.classList.add('active');
-                }
-            });
-        });
-
-        // Create floating particles
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 30;
-
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                particle.style.opacity = Math.random() * 0.3 + 0.1;
-                particle.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
-                container.appendChild(particle);
+        // Navbar background on scroll
+        window.addEventListener('scroll', () =&gt; {
+            const nav = document.querySelector('nav');
+            if (window.scrollY &gt; 100) {
+                nav.classList.add('bg-black/90', 'backdrop-blur-xl');
+            } else {
+                nav.classList.remove('bg-black/90', 'backdrop-blur-xl');
             }
-        }
-        createParticles();
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-fade-in-up');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.card, .layer').forEach(el => {
-            el.style.opacity = '0';
-            observer.observe(el);
         });
-    </script>
-</body>
-</html>
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
